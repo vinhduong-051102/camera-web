@@ -4,7 +4,11 @@ import { MenuOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { REDUX_KEY } from 'utils/constants';
 import { useInjectReducer } from 'utils/injectReducer';
-import { StyledPageHeader, StyledButtonLogin } from './styled';
+import {
+  StyledPageHeader,
+  StyledButtonLogin,
+  StyledMenuButton,
+} from './styled';
 import * as actions from './actions';
 import reducer from './reducer';
 
@@ -42,7 +46,11 @@ const Header = () => {
           />
         </StyledButtonLogin>
       }
-      backIcon={<MenuOutlined />}
+      backIcon={
+        <StyledMenuButton>
+          <MenuOutlined />
+        </StyledMenuButton>
+      }
     />
   );
 };

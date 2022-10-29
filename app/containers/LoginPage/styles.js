@@ -3,7 +3,7 @@ import { Form, Button } from 'antd';
 
 export const Container = styled.div`
   display: flex;
-  width: 100%;
+  width: 100vw;
   height: 100vh;
   align-items: center;
   flex-direction: column;
@@ -13,9 +13,10 @@ export const Container = styled.div`
 `;
 
 export const StyledForm = styled(Form)`
-  padding: 40px 30px;
   background: white;
   border-radius: 40px;
+  margin: auto 0;
+  width: 70vw;
 `;
 
 export const StyledFormItem = styled(Form.Item)`
@@ -29,9 +30,7 @@ export const StyledButton = styled(Button)`
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
-
   color: white;
-
   box-sizing: border-box;
   border-radius: 8px;
 `;

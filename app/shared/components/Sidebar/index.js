@@ -3,14 +3,18 @@ import { useHistory } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
-import { StyledSidebar, StyledMenu, SidebarContainer } from './styles';
+import { StyledSidebar, StyledMenu } from './styles';
 import * as selectors from '../Header/selectors';
 import { REDUX_KEY } from '../../../utils/constants';
 import reducer from './reducer';
 import saga from './saga';
 import * as actions from './actions';
+import { Grid } from 'antd';
+
+const { useBreakpoint } = Grid;
 
 const Sidebar = () => {
+  const screen = useBreakpoint();
   const dispatch = useDispatch();
   const key = REDUX_KEY.header;
   useInjectReducer({ key, reducer });
@@ -56,15 +60,20 @@ const Sidebar = () => {
   }, [location.href]);
 
   return (
-    <SidebarContainer>
-      <StyledSidebar style={isOpenSidebar ? {} : { display: 'none' }}>
+    <div>
+      <StyledSidebar
+        collapsed={isOpenSidebar}
+        collapsedWidth={screen.lg ? 80 : 0}
+        width={screen.lg ? 270 : "100vw"}
+        reverseArrow={false}
+      >
         <StyledMenu
           items={items}
           onClick={handleClickMenuItem}
           selectedKeys={[currPath]}
         />
       </StyledSidebar>
-    </SidebarContainer>
+    </div>
   );
 };
 

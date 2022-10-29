@@ -8,16 +8,22 @@ import {
   StyledInput,
   StyledButton,
   StyledSpanButton,
+  StyledSubmitFormButton,
 } from './styles';
 import * as selectors from '../../shared/components/Sidebar/selectors';
+import { useDebounce } from '../../hooks';
+import { axiosPost } from '../../utils/request';
 
 const HomePage = () => {
   const [form] = Form.useForm();
   const rawData = useSelector(selectors.selectData());
   const [tableData, setTableData] = React.useState([]);
+  const [searchValue, setSearchValue] = React.useState('');
   const [isOpenModal, setIsOpenModal] = React.useState(false);
   const [fileList, setFileList] = React.useState([]);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isSearching, setIsSearching] = React.useState(false);
+  const debounced = useDebounce(searchValue, 500);
   const columns = [
     {
       title: 'STT',
@@ -59,29 +65,9 @@ const HomePage = () => {
 
   const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
 
-  const handleSearch = e => {
+  const handleInputSearch = e => {
     const { value } = e.target;
-    if (rawData.data) {
-      const searchData = rawData.data.filter(
-        item =>
-          item.name.toLowerCase().includes(String(value).toLowerCase()) ||
-          item.id === value,
-      );
-      const data = searchData.map((item, index) => {
-        const { name, description, imagePath, createAt } = item;
-        return {
-          key: index,
-          name,
-          description,
-          imagePath,
-          createAt: new Date(createAt).toUTCString(),
-          stt: index + 1,
-        };
-      });
-      setTimeout(() => {
-        setTableData(data);
-      }, 500);
-    }
+    setSearchValue(value);
   };
 
   const handleResetForm = () => {
@@ -103,7 +89,7 @@ const HomePage = () => {
 
   React.useEffect(() => {
     let data = [];
-    if (rawData.data) {
+    if (rawData.data && Array.isArray(rawData.data)) {
       data = rawData.data.map((item, index) => {
         const { name, description, imagePath, createAt } = item;
         return {
@@ -119,11 +105,42 @@ const HomePage = () => {
     setTableData(data);
   }, []);
 
+  React.useEffect(() => {
+    setIsSearching(true);
+    axiosPost('', debounced.trim())
+      .then(res => {
+        let searchData = [];
+        if (res.data && Array.isArray(res.data)) {
+          searchData = res.data.map((item, index) => {
+            const { name, description, imagePath, createAt } = item;
+            return {
+              key: index,
+              name,
+              description,
+              imagePath,
+              createAt: new Date(createAt).toUTCString(),
+              stt: index + 1,
+            };
+          });
+        }
+        setTableData(searchData);
+      })
+      .catch(err => {
+        throw new Error(err);
+      })
+      .finally(() => {
+        setIsSearching(false);
+      });
+  }, [debounced]);
+
   return (
     <Container>
       <StyledInput
         placeholder="Nhập tên hoặc id muốn tìm "
-        onChange={handleSearch}
+        onChange={handleInputSearch}
+        value={searchValue}
+        loading={searchValue !== '' && isSearching}
+        size="large"
       />
       <StyledButton
         shape="round"
@@ -139,15 +156,15 @@ const HomePage = () => {
 
       <Modal
         title="Thêm mới"
-        centered
-        visible={isOpenModal}
+        // centered
+        open={isOpenModal}
         onOk={handleCloseModal}
         onCancel={handleCloseModal}
         footer={null}
       >
         <Form
           name="basic"
-          labelCol={{ span: 6 }}
+          labelCol={{ span: 8 }}
           wrapperCol={{ span: 18 }}
           initialValues={{ remember: true }}
           autoComplete="off"
@@ -156,7 +173,7 @@ const HomePage = () => {
           form={form}
         >
           <Form.Item
-            label="Tên dòng sản "
+            label="Tên dòng sản phẩm"
             name="name"
             rules={[
               {
@@ -168,7 +185,6 @@ const HomePage = () => {
           >
             <Input />
           </Form.Item>
-
           <Form.Item
             label="Mô tả"
             name="description"
@@ -203,11 +219,11 @@ const HomePage = () => {
               </Tooltip>
             </Upload>
           </Form.Item>
-          <Form.Item wrapperCol={{ offset: 18, span: 24 }}>
+          <StyledSubmitFormButton wrapperCol={{ span: 24 }}>
             <Button type="primary" htmlType="submit" loading={isSubmitting}>
               Xác nhận
             </Button>
-          </Form.Item>
+          </StyledSubmitFormButton>
         </Form>
       </Modal>
     </Container>

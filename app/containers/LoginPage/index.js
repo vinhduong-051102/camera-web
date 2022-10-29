@@ -42,11 +42,14 @@ const LoginPage = () => {
     <Container>
       <StyledForm
         name="basic"
-        labelCol={{ span: 6 }}
-        wrapperCol={{ span: 14 }}
+        labelCol={{
+          lg: { span: 4, offset: 3 },
+          md: { span: 24 },
+          sm: { span: 24 },
+        }}
+        wrapperCol={{ lg: { span: 12 }, md: { span: 24 }, sm: { span: 24 } }}
         initialValues={{ remember: true }}
         autoComplete="off"
-        style={{ margin: 'auto', width: 640 }}
         onFinish={handleSubmit}
       >
         <Form.Item>
@@ -62,7 +65,6 @@ const LoginPage = () => {
         >
           <Input value={username} onChange={handleInputUserName} />
         </StyledFormItem>
-
         <StyledFormItem
           label="Mật khẩu"
           name="password"
@@ -70,17 +72,20 @@ const LoginPage = () => {
         >
           <Input.Password value={password} onChange={handleInputPassword} />
         </StyledFormItem>
-
         <Form.Item
           name="remember"
           valuePropName="checked"
-          wrapperCol={{ offset: 4, span: 24 }}
+          wrapperCol={{ lg: { offset: 6, span: 12 }, md: { span: 24 } }}
         >
           <Checkbox>Duy trì đăng nhập</Checkbox>
         </Form.Item>
-
-        <Form.Item wrapperCol={{ offset: 4, span: 16 }}>
-          <StyledButton type="primary" htmlType="submit">
+        <Form.Item
+          wrapperCol={{
+            lg: { offset: 10, span: 6 },
+            md: { offset: 6, span: 12 },
+          }}
+        >
+          <StyledButton type="primary" htmlType="submit" size="large">
             Đăng nhập
           </StyledButton>
         </Form.Item>

@@ -27,7 +27,14 @@ const ComponentRouter = ({ component: Component }) => {
   return (
     <Route
       render={() => (
-        <Layout style={{ height: '100%', backgroundColor: '#FFFFFF' }}>
+        <Layout
+          style={{
+            height: '100%',
+            backgroundColor: '#FFFFFF',
+            width: '100vw',
+            overflow: 'hidden',
+          }}
+        >
           <Header />
           <Layout>
             <Sidebar />
