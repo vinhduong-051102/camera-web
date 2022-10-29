@@ -2,8 +2,6 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { COOKIES } from './constants';
 import { handleError } from './handleError';
-import { MOOK_DATA_GET } from '../mookData/mookDataGet';
-import { MOOK_DATA_POST } from '../mookData/mookDataPost';
 
 /**
  * Checks if a network request came back fine, and throws an error if not
@@ -56,9 +54,8 @@ instance.interceptors.response.use(
 );
 
 export async function axiosGet(path, body) {
-  if (MOOK_DATA_GET[path].switch) return MOOK_DATA_GET[path];
   const res = await instance
-    .post(path, body)
+    .get(path, body)
     .then(checkStatus)
     .catch(error => {
       if (!JSON.parse(JSON.stringify(error)).response) throw error;
@@ -67,7 +64,6 @@ export async function axiosGet(path, body) {
 }
 
 export async function axiosPost(path, body) {
-  if (MOOK_DATA_POST[path].switch) return MOOK_DATA_POST[path];
   const res = await instance
     .post(path, body)
     .then(checkStatus)

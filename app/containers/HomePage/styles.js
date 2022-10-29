@@ -1,6 +1,7 @@
 import styled from 'styled-components';
+import { Table, Input, Button } from 'antd';
 
-const Container = styled.div`
+export const Container = styled.div`
   display: flex;
   width: 100%;
   padding: 20px;
@@ -9,21 +10,26 @@ const Container = styled.div`
   background: ${props => props.theme.colors.background};
 `;
 
-const ButtonContainer = styled.div`
-  display: flex;
+export const StyledTable = styled(Table)`
   width: 100%;
-  justify-content: space-evenly;
 `;
 
-const DataContainer = styled.div`
-  display: flex;
-  width: 100%;
-  height: 850px;
-  margin: 20px;
-  padding: 10px;
-  overflow-y: auto;
-  border: 1px solid red;
-  column-gap: 10px;
+export const StyledInput = styled(Input)`
+  width: 30%;
+  align-self: flex-end;
+  margin-bottom: 20px;
 `;
 
-export { Container, ButtonContainer, DataContainer };
+export const StyledButton = styled(Button)`
+  align-self: flex-end;
+  margin-bottom: 20px;
+  width: 10%;
+`;
+
+export const StyledSpanButton = styled.span`
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100%;
+  gap: 10px;
+`;

@@ -8,4 +8,7 @@ export const COOKIES = {
 
 export const REDUX_KEY = {
   homePage: 'homePage',
+  sidebar: 'sidebar',
+  header: 'header',
+  loginPage: 'loginPage',
 };
