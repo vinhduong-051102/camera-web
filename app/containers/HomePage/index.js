@@ -1,7 +1,23 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { PlusCircleOutlined, UploadOutlined } from '@ant-design/icons';
-import { Upload, Form, Input, Modal, Button, Tooltip } from 'antd';
+import {
+  PlusCircleOutlined,
+  UploadOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  EyeOutlined,
+} from '@ant-design/icons';
+import {
+  Upload,
+  Form,
+  Input,
+  Modal,
+  Button,
+  Tooltip,
+  Grid,
+  Popconfirm,
+  Descriptions,
+} from 'antd';
 import {
   Container,
   StyledTable,
@@ -15,19 +31,26 @@ import { useDebounce } from '../../hooks';
 import { axiosPost } from '../../utils/request';
 
 const HomePage = () => {
+  const screen = Grid.useBreakpoint();
   const [form] = Form.useForm();
   const rawData = useSelector(selectors.selectData());
+  // eslint-disable-next-line no-unused-vars
   const [tableData, setTableData] = React.useState([]);
   const [searchValue, setSearchValue] = React.useState('');
   const [isOpenModal, setIsOpenModal] = React.useState(false);
   const [fileList, setFileList] = React.useState([]);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isSearching, setIsSearching] = React.useState(false);
+  const [isOpenViewDetail, setIsOpenViewDetail] = React.useState(false);
+  const [titleModal, setTitleModal] = React.useState('');
   const debounced = useDebounce(searchValue, 500);
-  const columns = [
+
+  const PcColumns = [
     {
       title: 'STT',
       dataIndex: 'stt',
+      width: 80,
+      align: 'center',
     },
     {
       title: 'Ảnh',
@@ -35,6 +58,7 @@ const HomePage = () => {
       render: imagePath => (
         <img style={{ width: 100, height: 100 }} src={imagePath} alt="" />
       ),
+      width: 150,
     },
     {
       title: 'Tên',
@@ -48,20 +72,131 @@ const HomePage = () => {
     {
       title: 'Thời gian tạo',
       dataIndex: 'createAt',
+      width: 250,
+    },
+    {
+      title: 'Thao tác',
+      render: id => (
+        <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+          <Popconfirm
+            title="Xác nhận xoá"
+            okText="Xác nhận"
+            cancelText="Huỷ"
+            onConfirm={() => handleDelProductLine(id)}
+          >
+            <Tooltip title="Xoá">
+              <Button
+                icon={<DeleteOutlined />}
+                shape="circle"
+                danger
+                type="primary"
+              />
+            </Tooltip>
+          </Popconfirm>
+          <Tooltip title="Sửa">
+            <Button
+              icon={<EditOutlined />}
+              shape="circle"
+              type="primary"
+              onClick={() => handleOpenModal('Sửa')}
+            />
+          </Tooltip>
+        </div>
+      ),
+      dataIndex: 'id',
+      width: 150,
+    },
+  ];
+
+  const mbColumns = [
+    {
+      title: 'STT',
+      dataIndex: 'stt',
+      align: 'center',
+    },
+    {
+      title: 'Thông tin chung',
+      render: (text, record) => (
+        <div>
+          <img src={record.imagePath} alt="" width={100} height={100} />
+          <p>{record.name}</p>
+        </div>
+      ),
+      align: 'center',
+    },
+    {
+      title: 'Thao tác',
+      render: (id, record) => (
+        <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+          <Popconfirm
+            title="Xác nhận xoá"
+            okText="Xác nhận"
+            cancelText="Huỷ"
+            onConfirm={() => handleDelProductLine(id)}
+          >
+            <Tooltip title="Xoá">
+              <Button
+                icon={<DeleteOutlined />}
+                shape="circle"
+                danger
+                type="primary"
+              />
+            </Tooltip>
+          </Popconfirm>
+          <Tooltip title="Sửa">
+            <Button
+              icon={<EditOutlined />}
+              shape="circle"
+              type="primary"
+              onClick={() => handleOpenModal('Sửa')}
+            />
+          </Tooltip>
+          <Tooltip title="Xem chi tiết">
+            <Button
+              icon={<EyeOutlined />}
+              shape="circle"
+              onClick={handleOpenViewDetail}
+            />
+          </Tooltip>
+          <Modal
+            title="Chi tiết thông tin"
+            open={isOpenViewDetail}
+            centered
+            onCancel={handleCloseViewDeital}
+            onOk={handleCloseViewDeital}
+          >
+            <Descriptions bordered column={1}>
+              <Descriptions.Item label="Hình ảnh">
+                <img width={100} height={100} src={record.imagePath} alt="" />
+              </Descriptions.Item>
+              <Descriptions.Item label="Tên dòng sản phẩm">
+                {record.name}
+              </Descriptions.Item>
+              <Descriptions.Item label="Mô tả">
+                {record.description}
+              </Descriptions.Item>
+              <Descriptions.Item label="Ngày tạo">
+                {record.createAt}
+              </Descriptions.Item>
+            </Descriptions>
+          </Modal>
+        </div>
+      ),
+      width: screen.xs ? 128 : 'auto',
+      dataIndex: 'id',
     },
   ];
 
   // upload modal
 
-  const handleOpenModal = () => {
+  const handleOpenModal = title => {
+    setTitleModal(title);
     setIsOpenModal(true);
   };
 
   const handleCloseModal = () => {
     setIsOpenModal(false);
   };
-
-  // upload image file
 
   const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
 
@@ -78,13 +213,30 @@ const HomePage = () => {
     setFileList([]);
   };
 
+  const handleOpenViewDetail = () => {
+    setIsOpenViewDetail(true);
+  };
+
+  const handleCloseViewDeital = () => {
+    setIsOpenViewDetail(false);
+  };
+
   const handleSubmitForm = () => {
     // const createAt = new Date().valueOf();
+    if (titleModal === 'Sửa') {
+      alert('submit edit');
+    } else {
+      alert('submit add');
+    }
     setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
       handleResetForm();
     }, [3000]);
+  };
+
+  const handleDelProductLine = id => {
+    alert(id);
   };
 
   React.useEffect(() => {
@@ -146,17 +298,31 @@ const HomePage = () => {
         shape="round"
         type="primary"
         size="large"
-        onClick={handleOpenModal}
+        onClick={() => handleOpenModal('Thêm mới')}
       >
         <StyledSpanButton>
           Thêm mới <PlusCircleOutlined />
         </StyledSpanButton>
       </StyledButton>
-      <StyledTable columns={columns} dataSource={tableData} />
+      <StyledTable
+        columns={screen.xs || (screen.sm && !screen.lg) ? mbColumns : PcColumns}
+        dataSource={[
+          {
+            key: 1,
+            stt: 1,
+            name: 'name',
+            description: 'description',
+            imagePath: 'https://picsum.photos/200/300',
+            createAt: new Date(new Date().valueOf()).toUTCString(),
+            id: 0,
+          },
+        ]}
+        size="large"
+      />
 
       <Modal
-        title="Thêm mới"
-        // centered
+        title={titleModal}
+        centered
         open={isOpenModal}
         onOk={handleCloseModal}
         onCancel={handleCloseModal}
@@ -226,6 +392,7 @@ const HomePage = () => {
           </StyledSubmitFormButton>
         </Form>
       </Modal>
+      {/* detail info */}
     </Container>
   );
 };
