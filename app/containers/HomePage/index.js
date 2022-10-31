@@ -77,7 +77,13 @@ const HomePage = () => {
     {
       title: 'Thao tác',
       render: id => (
-        <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-around',
+            flexWrap: 'wrap',
+          }}
+        >
           <Popconfirm
             title="Xác nhận xoá"
             okText="Xác nhận"
@@ -113,6 +119,7 @@ const HomePage = () => {
       title: 'STT',
       dataIndex: 'stt',
       align: 'center',
+      width: 100,
     },
     {
       title: 'Thông tin chung',
@@ -162,8 +169,8 @@ const HomePage = () => {
             title="Chi tiết thông tin"
             open={isOpenViewDetail}
             centered
-            onCancel={handleCloseViewDeital}
-            onOk={handleCloseViewDeital}
+            onCancel={handleCloseViewDetail}
+            onOk={handleCloseViewDetail}
           >
             <Descriptions bordered column={1}>
               <Descriptions.Item label="Hình ảnh">
@@ -182,7 +189,7 @@ const HomePage = () => {
           </Modal>
         </div>
       ),
-      width: screen.xs ? 128 : 'auto',
+      width: screen.xs ? 128 : 200,
       dataIndex: 'id',
     },
   ];
@@ -217,7 +224,7 @@ const HomePage = () => {
     setIsOpenViewDetail(true);
   };
 
-  const handleCloseViewDeital = () => {
+  const handleCloseViewDetail = () => {
     setIsOpenViewDetail(false);
   };
 

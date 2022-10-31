@@ -3,18 +3,20 @@ import { useHistory } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
+import { Grid } from 'antd';
 import { StyledSidebar, StyledMenu } from './styles';
 import * as selectors from '../Header/selectors';
 import { REDUX_KEY } from '../../../utils/constants';
 import reducer from './reducer';
 import saga from './saga';
 import * as actions from './actions';
-import { Grid } from 'antd';
+import { openSidebar } from '../Header/actions';
 
 const { useBreakpoint } = Grid;
 
 const Sidebar = () => {
   const screen = useBreakpoint();
+  console.log('🚀 ~ file: index.js ~ line 19 ~ Sidebar ~ screen', screen);
   const dispatch = useDispatch();
   const key = REDUX_KEY.header;
   useInjectReducer({ key, reducer });
@@ -46,6 +48,9 @@ const Sidebar = () => {
   ];
   const handleClickMenuItem = item => {
     history.push(`/${item.key}`);
+    if ((screen.md || screen.sm || screen.xs) && !(screen.xxl || screen.xl)) {
+      dispatch(openSidebar());
+    }
   };
   React.useEffect(() => {
     // eslint-disable-next-line no-restricted-globals
@@ -64,7 +69,7 @@ const Sidebar = () => {
       <StyledSidebar
         collapsed={isOpenSidebar}
         collapsedWidth={screen.lg ? 80 : 0}
-        width={screen.lg ? 270 : "100vw"}
+        width={screen.xxl || screen.xl ? 270 : '100vw'}
         reverseArrow={false}
       >
         <StyledMenu
