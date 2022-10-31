@@ -56,3 +56,10 @@ export const StyledSubmitFormButton = styled(Form.Item)`
     justify-content: flex-end !important;
   }
 `;
+
+export const StyledDescription = styled.div`
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`;

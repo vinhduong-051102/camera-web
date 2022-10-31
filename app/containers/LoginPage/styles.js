@@ -8,7 +8,6 @@ export const Container = styled.div`
   align-items: center;
   flex-direction: column;
   background: ${props => props.theme.colors.background};
-  background-image: url('http://10.2.22.166:1234/239026434b096753779aeac1eda32cb7.svg');
   background-size: cover;
 `;
 
@@ -16,6 +15,7 @@ export const StyledForm = styled(Form)`
   background: white;
   border-radius: 40px;
   margin: auto 0;
+  padding: 0 20px;
   width: 70vw;
 `;
 
@@ -33,4 +33,10 @@ export const StyledButton = styled(Button)`
   color: white;
   box-sizing: border-box;
   border-radius: 8px;
+`;
+
+export const StyledFormItemImg = styled(Form.Item)`
+  .ant-form-item-row {
+    justify-content: center !important;
+  }
 `;

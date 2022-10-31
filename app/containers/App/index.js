@@ -14,12 +14,14 @@ import { ThemeProvider } from 'styled-components';
 import HomePage from 'containers/HomePage/Loadable';
 import ErrorPage from 'shared/components/ErrorPage';
 import { Layout } from 'antd';
+import { useSelector } from 'react-redux';
 import Header from '../../shared/components/Header';
 import Sidebar from '../../shared/components/Sidebar';
 import LoginPage from '../LoginPage';
 
 import GlobalStyle from '../../global-styles';
 import { normalTheme } from '../../themes/normalTheme';
+import { selectAccessToken } from '../LoginPage/selectors';
 
 // eslint-disable-next-line react/prop-types
 const ComponentRouter = ({ component: Component }) => {
@@ -49,6 +51,7 @@ const ComponentRouter = ({ component: Component }) => {
 };
 
 export default function App() {
+  const accessToken = useSelector(selectAccessToken());
   return (
     <ThemeProvider theme={normalTheme}>
       <>
@@ -58,16 +61,23 @@ export default function App() {
             path="/"
             component={() => <Redirect to="/danh-sach-san-pham" />}
           />
+
           <ComponentRouter
             exact
             path="/danh-sach-san-pham"
-            component={HomePage}
+            component={() =>
+              accessToken ? <HomePage /> : <Redirect to="/login" />
+            }
           />
+
           <ComponentRouter
             exact
             path="/danh-sach-hang-san-pham"
-            component={HomePage}
+            component={() =>
+              accessToken ? <HomePage /> : <Redirect to="/login" />
+            }
           />
+
           <Route path="/login" render={() => <LoginPage />} />
           <Route path="" render={() => <ErrorPage code="404" />} />
         </Switch>

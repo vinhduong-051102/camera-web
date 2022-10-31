@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import {
   PlusCircleOutlined,
   UploadOutlined,
@@ -25,12 +25,26 @@ import {
   StyledButton,
   StyledSpanButton,
   StyledSubmitFormButton,
+  StyledDescription,
 } from './styles';
 import * as selectors from '../../shared/components/Sidebar/selectors';
 import { useDebounce } from '../../hooks';
-import { axiosPost } from '../../utils/request';
+import { axiosGet } from '../../utils/request';
+import reducer from './reducer';
+import saga from './saga';
+import { useInjectReducer } from '../../utils/injectReducer';
+import { useInjectSaga } from '../../utils/injectSaga';
+import { REDUX_KEY } from '../../utils/constants';
+import * as actions from './actions';
+import { selectIsProcessing, selectImageId } from './selectors';
 
 const HomePage = () => {
+  const isProcessing = useSelector(selectIsProcessing());
+  const imageId = useSelector(selectImageId());
+  const dispatch = useDispatch();
+  const key = REDUX_KEY.homePage;
+  useInjectReducer({ key, reducer });
+  useInjectSaga({ key, saga });
   const screen = Grid.useBreakpoint();
   const [form] = Form.useForm();
   const rawData = useSelector(selectors.selectData());
@@ -39,12 +53,11 @@ const HomePage = () => {
   const [searchValue, setSearchValue] = React.useState('');
   const [isOpenModal, setIsOpenModal] = React.useState(false);
   const [fileList, setFileList] = React.useState([]);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isSearching, setIsSearching] = React.useState(false);
   const [isOpenViewDetail, setIsOpenViewDetail] = React.useState(false);
   const [titleModal, setTitleModal] = React.useState('');
-  const debounced = useDebounce(searchValue, 500);
-
+  const [showAllDesc, setShowAllDesc] = React.useState(false);
+  const debounced = useDebounce(searchValue, 800);
   const PcColumns = [
     {
       title: 'STT',
@@ -63,10 +76,25 @@ const HomePage = () => {
     {
       title: 'Tên',
       dataIndex: 'name',
+      width: !screen.xl || !screen.xxl ? 100 : 200,
     },
     {
       title: 'Mô tả',
       dataIndex: 'description',
+      render: description =>
+        showAllDesc ? (
+          // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
+          <span
+            style={{ fontSize: 'inherit' }}
+            onClick={handleToggleShowAllDesc}
+          >
+            {description}
+          </span>
+        ) : (
+          <StyledDescription onClick={handleToggleShowAllDesc}>
+            {description}
+          </StyledDescription>
+        ),
     },
 
     {
@@ -205,7 +233,10 @@ const HomePage = () => {
     setIsOpenModal(false);
   };
 
-  const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+  const handleChange = data => {
+    // eslint-disable-next-line no-shadow
+    setFileList(data.fileList);
+  };
 
   const handleInputSearch = e => {
     const { value } = e.target;
@@ -228,22 +259,29 @@ const HomePage = () => {
     setIsOpenViewDetail(false);
   };
 
-  const handleSubmitForm = () => {
-    // const createAt = new Date().valueOf();
+  const handleSubmitForm = values => {
     if (titleModal === 'Sửa') {
       alert('submit edit');
-    } else {
-      alert('submit add');
+    } else if (imageId) {
+      dispatch(
+        actions.postProductLine({
+          name: values.name,
+          description: values.description,
+          image: values.image.file.originFileObj,
+        }),
+      );
     }
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    if (!isProcessing) {
       handleResetForm();
-    }, [3000]);
+    }
   };
 
   const handleDelProductLine = id => {
     alert(id);
+  };
+
+  const handleToggleShowAllDesc = () => {
+    setShowAllDesc(prev => !prev);
   };
 
   React.useEffect(() => {
@@ -262,27 +300,27 @@ const HomePage = () => {
       });
     }
     setTableData(data);
-  }, []);
+  }, [debounced]);
 
   React.useEffect(() => {
     setIsSearching(true);
-    axiosPost('', debounced.trim())
+    axiosGet('http://10.2.65.99:7777/api/v1/product-line', debounced.trim())
       .then(res => {
-        let searchData = [];
-        if (res.data && Array.isArray(res.data)) {
-          searchData = res.data.map((item, index) => {
-            const { name, description, imagePath, createAt } = item;
-            return {
-              key: index,
-              name,
-              description,
-              imagePath,
-              createAt: new Date(createAt).toUTCString(),
-              stt: index + 1,
-            };
+        const searchData = [];
+        if (res.data) {
+          const { name, imagePath, createAt, id, description } = res.data.data;
+          searchData.push({
+            key: id,
+            name,
+            description,
+            imagePath,
+            createAt: new Date(createAt).toUTCString(),
+            stt: 1,
           });
         }
-        setTableData(searchData);
+        if (debounced !== '') {
+          setTableData(searchData);
+        }
       })
       .catch(err => {
         throw new Error(err);
@@ -295,7 +333,7 @@ const HomePage = () => {
   return (
     <Container>
       <StyledInput
-        placeholder="Nhập tên hoặc id muốn tìm "
+        placeholder="Nhập id muốn tìm "
         onChange={handleInputSearch}
         value={searchValue}
         loading={searchValue !== '' && isSearching}
@@ -313,12 +351,14 @@ const HomePage = () => {
       </StyledButton>
       <StyledTable
         columns={screen.xs || (screen.sm && !screen.lg) ? mbColumns : PcColumns}
+        // dataSource={tableData}
         dataSource={[
           {
             key: 1,
             stt: 1,
             name: 'name',
-            description: 'description',
+            description:
+              'Chúng ta sẽ truyền props từ file index.jsx sang styled.js . Và điều chỉnh số dòng thông qua props đến thuộc tính css là -webkit-line-clamp . Mặc định số dòng hiển thị mình cho ở đây là 3 dòng .',
             imagePath: 'https://picsum.photos/200/300',
             createAt: new Date(new Date().valueOf()).toUTCString(),
             id: 0,
@@ -369,7 +409,7 @@ const HomePage = () => {
             ]}
             style={{ marginBottom: 24 }}
           >
-            <Input />
+            <Input.TextArea />
           </Form.Item>
           <Form.Item label="Tải file ảnh" name="image">
             <Upload
@@ -393,13 +433,12 @@ const HomePage = () => {
             </Upload>
           </Form.Item>
           <StyledSubmitFormButton wrapperCol={{ span: 24 }}>
-            <Button type="primary" htmlType="submit" loading={isSubmitting}>
+            <Button type="primary" htmlType="submit" loading={isProcessing}>
               Xác nhận
             </Button>
           </StyledSubmitFormButton>
         </Form>
       </Modal>
-      {/* detail info */}
     </Container>
   );
 };

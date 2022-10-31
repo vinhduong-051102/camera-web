@@ -16,7 +16,6 @@ const { useBreakpoint } = Grid;
 
 const Sidebar = () => {
   const screen = useBreakpoint();
-  console.log('🚀 ~ file: index.js ~ line 19 ~ Sidebar ~ screen', screen);
   const dispatch = useDispatch();
   const key = REDUX_KEY.header;
   useInjectReducer({ key, reducer });

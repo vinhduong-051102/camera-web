@@ -9,11 +9,18 @@ export function* getAccessToken(accessToken) {
 
 export function* login(action) {
   const body = { ...action.payload };
-  const path = 'http://10.2.65.99:7777/api/v1/auth/login';
-  const res = yield call(axiosPost, path, body);
-  if (res.data) {
-    yield call(getAccessToken, res.data.data.token);
+  const path = '/v1/auth/login';
+  yield put(actions.begin());
+  try {
+    const res = yield call(axiosPost, path, body);
+    if (res.data) {
+      yield call(getAccessToken, res.data.data.token);
+    }
+  } catch (err) {
+    throw new Error(err);
   }
+
+  yield put(actions.end());
 }
 
 export default function* watchFetchMonitor() {

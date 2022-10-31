@@ -24,8 +24,8 @@ const instance = axios.create({
   baseURL: `${
     process.env.NODE_ENV === 'production'
       ? window.SystemConfig.URL
-      : 'https://reqres.in/api'
-  }/Api`,
+      : 'http://10.2.65.99:7777/api'
+  }`,
 });
 
 instance.defaults.timeout = 25000;

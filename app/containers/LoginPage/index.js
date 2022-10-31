@@ -2,7 +2,13 @@ import React from 'react';
 import { Form, Input, Checkbox } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { Container, StyledFormItem, StyledButton, StyledForm } from './styles';
+import {
+  Container,
+  StyledFormItem,
+  StyledButton,
+  StyledForm,
+  StyledFormItemImg,
+} from './styles';
 import { login } from './actions';
 import { REDUX_KEY } from '../../utils/constants';
 import { useInjectReducer } from '../../utils/injectReducer';
@@ -10,6 +16,8 @@ import { useInjectSaga } from '../../utils/injectSaga';
 import reducer from './reducer';
 import saga from './saga';
 import * as selectors from './selectors';
+import loginBanner from '../../images/login-banner.svg';
+import loginBG from '../../images/login-bg.svg';
 
 const LoginPage = () => {
   const history = useHistory();
@@ -39,7 +47,7 @@ const LoginPage = () => {
     }
   }, [accessToken]);
   return (
-    <Container>
+    <Container style={{ backgroundImage: `url(${loginBG})` }}>
       <StyledForm
         name="basic"
         labelCol={{
@@ -52,12 +60,9 @@ const LoginPage = () => {
         autoComplete="off"
         onFinish={handleSubmit}
       >
-        <Form.Item>
-          <img
-            src="http://10.2.22.166:1234/9bdf5721f911a8e92a765052930fbf77.svg"
-            alt=""
-          />
-        </Form.Item>
+        <StyledFormItemImg>
+          <img src={loginBanner} alt="" style={{ width: '100%' }} />
+        </StyledFormItemImg>
         <StyledFormItem
           label="Tên đăng nhập"
           name="username"
