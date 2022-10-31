@@ -7,8 +7,19 @@ export function* getDataProductLine() {
   const path = 'http://10.2.65.99:7777/api/v1/product-line';
   try {
     const res = yield call(axiosGet, path);
-    // console.log(res.data)
-    yield put(actions.getDataProductLine(res.data));
+    const rawData = res.data.data;
+    const tableData = rawData.map((item, index) => {
+      const { name, description, imagePath, createAt } = item;
+      return {
+        key: index,
+        name,
+        description,
+        imagePath,
+        createAt: new Date(createAt).toUTCString(),
+        stt: index + 1,
+      };
+    });
+    yield put(actions.getDataProductLine(tableData));
   } catch (error) {
     throw new Error(error);
   }

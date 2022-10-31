@@ -3,7 +3,8 @@ import {
   ACTION_END,
   ACTION_BEGIN,
   ACTION_POST_IMG_PRODUCT_LINE,
-  ACTION_GET_IMG_PRODUCT_LINE,
+  ACTION_PREPARE_POST_PRODUCT_LINE,
+  ACTION_SEARCH_PRODUCT_LINE_BY_ID,
 } from './constants';
 
 export const postProductLine = payload => ({
@@ -24,7 +25,12 @@ export const end = () => ({
   type: ACTION_END,
 });
 
-export const getImgProductLine = payload => ({
-  type: ACTION_GET_IMG_PRODUCT_LINE,
+export const preparePostProductLine = payload => ({
+  type: ACTION_PREPARE_POST_PRODUCT_LINE,
+  payload,
+});
+
+export const searchProductLine = payload => ({
+  type: ACTION_SEARCH_PRODUCT_LINE_BY_ID,
   payload,
 });

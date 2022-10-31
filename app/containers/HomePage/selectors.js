@@ -10,9 +10,3 @@ export const selectIsProcessing = () =>
     selectLoginPage,
     state => state.isProcessing,
   );
-
-export const selectImageId = () =>
-  createSelector(
-    selectLoginPage,
-    state => state.imageId,
-  );

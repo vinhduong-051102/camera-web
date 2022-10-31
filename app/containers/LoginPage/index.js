@@ -23,27 +23,15 @@ const LoginPage = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const accessToken = useSelector(selectors.selectAccessToken());
-  const [username, setUserName] = React.useState('');
-  const [password, setPassword] = React.useState('');
   const key = REDUX_KEY.loginPage;
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
-  const handleInputUserName = e => {
-    setUserName(e.target.value);
-  };
-
-  const handleInputPassword = e => {
-    setPassword(e.target.value);
-  };
-
   const handleSubmit = values => {
-    // console.log(values);
     dispatch(login(values));
   };
   React.useEffect(() => {
     if (accessToken !== '') {
       history.push('/');
-      document.cookie = `access_token="${accessToken}"`;
     }
   }, [accessToken]);
   return (
@@ -68,14 +56,14 @@ const LoginPage = () => {
           name="username"
           rules={[{ required: true, message: 'Vui lòng nhập tên đăng !' }]}
         >
-          <Input value={username} onChange={handleInputUserName} />
+          <Input />
         </StyledFormItem>
         <StyledFormItem
           label="Mật khẩu"
           name="password"
           rules={[{ required: true, message: 'Vui lòng nhập mật !' }]}
         >
-          <Input.Password value={password} onChange={handleInputPassword} />
+          <Input.Password />
         </StyledFormItem>
         <Form.Item
           name="remember"

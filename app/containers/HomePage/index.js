@@ -28,36 +28,30 @@ import {
   StyledDescription,
 } from './styles';
 import * as selectors from '../../shared/components/Sidebar/selectors';
-import { useDebounce } from '../../hooks';
-import { axiosGet } from '../../utils/request';
 import reducer from './reducer';
 import saga from './saga';
 import { useInjectReducer } from '../../utils/injectReducer';
 import { useInjectSaga } from '../../utils/injectSaga';
 import { REDUX_KEY } from '../../utils/constants';
 import * as actions from './actions';
-import { selectIsProcessing, selectImageId } from './selectors';
+import { selectIsProcessing } from './selectors';
 
 const HomePage = () => {
   const isProcessing = useSelector(selectIsProcessing());
-  const imageId = useSelector(selectImageId());
   const dispatch = useDispatch();
   const key = REDUX_KEY.homePage;
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
   const screen = Grid.useBreakpoint();
   const [form] = Form.useForm();
-  const rawData = useSelector(selectors.selectData());
   // eslint-disable-next-line no-unused-vars
-  const [tableData, setTableData] = React.useState([]);
+  const data = useSelector(selectors.selectData());
   const [searchValue, setSearchValue] = React.useState('');
   const [isOpenModal, setIsOpenModal] = React.useState(false);
   const [fileList, setFileList] = React.useState([]);
-  const [isSearching, setIsSearching] = React.useState(false);
   const [isOpenViewDetail, setIsOpenViewDetail] = React.useState(false);
   const [titleModal, setTitleModal] = React.useState('');
   const [showAllDesc, setShowAllDesc] = React.useState(false);
-  const debounced = useDebounce(searchValue, 800);
   const PcColumns = [
     {
       title: 'STT',
@@ -233,9 +227,9 @@ const HomePage = () => {
     setIsOpenModal(false);
   };
 
-  const handleChange = data => {
+  const handleChange = imgData => {
     // eslint-disable-next-line no-shadow
-    setFileList(data.fileList);
+    setFileList(imgData.fileList);
   };
 
   const handleInputSearch = e => {
@@ -262,9 +256,9 @@ const HomePage = () => {
   const handleSubmitForm = values => {
     if (titleModal === 'Sửa') {
       alert('submit edit');
-    } else if (imageId) {
+    } else if (titleModal === 'Thêm mới') {
       dispatch(
-        actions.postProductLine({
+        actions.preparePostProductLine({
           name: values.name,
           description: values.description,
           image: values.image.file.originFileObj,
@@ -284,59 +278,13 @@ const HomePage = () => {
     setShowAllDesc(prev => !prev);
   };
 
-  React.useEffect(() => {
-    let data = [];
-    if (rawData.data && Array.isArray(rawData.data)) {
-      data = rawData.data.map((item, index) => {
-        const { name, description, imagePath, createAt } = item;
-        return {
-          key: index,
-          name,
-          description,
-          imagePath,
-          createAt: new Date(createAt).toUTCString(),
-          stt: index + 1,
-        };
-      });
-    }
-    setTableData(data);
-  }, [debounced]);
-
-  React.useEffect(() => {
-    setIsSearching(true);
-    axiosGet('http://10.2.65.99:7777/api/v1/product-line', debounced.trim())
-      .then(res => {
-        const searchData = [];
-        if (res.data) {
-          const { name, imagePath, createAt, id, description } = res.data.data;
-          searchData.push({
-            key: id,
-            name,
-            description,
-            imagePath,
-            createAt: new Date(createAt).toUTCString(),
-            stt: 1,
-          });
-        }
-        if (debounced !== '') {
-          setTableData(searchData);
-        }
-      })
-      .catch(err => {
-        throw new Error(err);
-      })
-      .finally(() => {
-        setIsSearching(false);
-      });
-  }, [debounced]);
-
   return (
     <Container>
       <StyledInput
         placeholder="Nhập id muốn tìm "
         onChange={handleInputSearch}
         value={searchValue}
-        loading={searchValue !== '' && isSearching}
+        loading={searchValue !== '' && isProcessing}
         size="large"
       />
       <StyledButton
@@ -351,7 +299,7 @@ const HomePage = () => {
       </StyledButton>
       <StyledTable
         columns={screen.xs || (screen.sm && !screen.lg) ? mbColumns : PcColumns}
-        // dataSource={tableData}
+        // dataSource={data}
         dataSource={[
           {
             key: 1,
