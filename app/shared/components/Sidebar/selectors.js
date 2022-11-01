@@ -8,7 +8,7 @@ export const selectData = () =>
   createSelector(
     selectSidebar,
     state => {
-      const tableData = state.data.map((item, index) => {
+      const tableData = state.data.data.map((item, index) => {
         const { name, description, imagePath, createAt, id } = item;
         return {
           key: index,
@@ -17,7 +17,7 @@ export const selectData = () =>
           imagePath,
           createAt: new Date(createAt).toUTCString(),
           stt: index + 1,
-          id
+          id,
         };
       });
       return tableData;

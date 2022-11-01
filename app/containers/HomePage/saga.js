@@ -15,23 +15,11 @@ export function* preparePostProductLine(action) {
     const res = yield call(axiosPost, imgApiPath, formData);
     const imageId = res.data.data.id;
     const payload = { ...body, imageId };
-    yield put(postProductLine(payload));
+    yield put(actions.postProductLine(payload));
   } catch (err) {
     throw new Error(err);
   }
   yield put(actions.end());
-}
-
-export function* postImageProductLine(formData) {
-  const path = '/v1/image/product_line/upload';
-  try {
-    const res = yield call(axiosPost, path, formData);
-    if (res.data !== null) {
-      yield put(actions.getImgProductLine(res.data.data.id));
-    }
-  } catch (err) {
-    throw new Error(err);
-  }
 }
 
 export function* postProductLine(action) {
@@ -44,8 +32,6 @@ export function* postProductLine(action) {
     throw new Error(err);
   }
 }
-
-// chinh lai state data trong homepage
 
 export function* searchProductLine(action) {
   const body = action.payload;
@@ -65,10 +51,6 @@ export function* searchProductLine(action) {
 
 export default function* watchFetchMonitor() {
   yield takeLatest(constants.ACTION_POST_PRODUCTLINE, postProductLine);
-  yield takeLatest(
-    constants.ACTION_POST_IMG_PRODUCT_LINE,
-    postImageProductLine,
-  );
   yield takeLatest(
     constants.ACTION_PREPARE_POST_PRODUCT_LINE,
     preparePostProductLine,

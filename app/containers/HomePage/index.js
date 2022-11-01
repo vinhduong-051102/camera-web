@@ -235,6 +235,7 @@ const HomePage = () => {
   const handleInputSearch = e => {
     const { value } = e.target;
     setSearchValue(value);
+    actions.searchProductLine(value);
   };
 
   const handleResetForm = () => {
@@ -299,19 +300,19 @@ const HomePage = () => {
       </StyledButton>
       <StyledTable
         columns={screen.xs || (screen.sm && !screen.lg) ? mbColumns : PcColumns}
-        // dataSource={data}
-        dataSource={[
-          {
-            key: 1,
-            stt: 1,
-            name: 'name',
-            description:
-              'Chúng ta sẽ truyền props từ file index.jsx sang styled.js . Và điều chỉnh số dòng thông qua props đến thuộc tính css là -webkit-line-clamp . Mặc định số dòng hiển thị mình cho ở đây là 3 dòng .',
-            imagePath: 'https://picsum.photos/200/300',
-            createAt: new Date(new Date().valueOf()).toUTCString(),
-            id: 0,
-          },
-        ]}
+        dataSource={data}
+        // dataSource={[
+        //   {
+        //     key: 1,
+        //     stt: 1,
+        //     name: 'name',
+        //     description:
+        //       'Chúng ta sẽ truyền props từ file index.jsx sang styled.js . Và điều chỉnh số dòng thông qua props đến thuộc tính css là -webkit-line-clamp . Mặc định số dòng hiển thị mình cho ở đây là 3 dòng .',
+        //     imagePath: 'https://picsum.photos/200/300',
+        //     createAt: new Date(new Date().valueOf()).toUTCString(),
+        //     id: 0,
+        //   },
+        // ]}
         size="large"
       />
 

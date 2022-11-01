@@ -7,7 +7,7 @@ export function* getDataProductLine() {
   const path = 'http://10.2.65.99:7777/api/v1/product-line';
   try {
     const res = yield call(axiosGet, path);
-    const data = res.data.data;
+    const { data } = res;
     yield put(actions.getDataProductLine(data));
   } catch (error) {
     throw new Error(error);

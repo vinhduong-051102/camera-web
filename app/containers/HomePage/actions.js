@@ -2,18 +2,12 @@ import {
   ACTION_POST_PRODUCTLINE,
   ACTION_END,
   ACTION_BEGIN,
-  ACTION_POST_IMG_PRODUCT_LINE,
   ACTION_PREPARE_POST_PRODUCT_LINE,
   ACTION_SEARCH_PRODUCT_LINE_BY_ID,
 } from './constants';
 
 export const postProductLine = payload => ({
   type: ACTION_POST_PRODUCTLINE,
-  payload,
-});
-
-export const postImgProductLine = payload => ({
-  type: ACTION_POST_IMG_PRODUCT_LINE,
   payload,
 });
 

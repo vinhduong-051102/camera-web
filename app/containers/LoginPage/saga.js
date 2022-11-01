@@ -11,8 +11,9 @@ export function* login(action) {
   try {
     const res = yield call(axiosPost, path, body);
     if (res.data) {
-      yield put(actions.getAccessToken(res.data.data.token));
-      yield call(setAccessToken, res.data.data.token);
+      const accessToken = res.data.data.token;
+      yield put(actions.getAccessToken(accessToken));
+      yield call(setAccessToken, accessToken);
     }
   } catch (err) {
     throw new Error(err);
