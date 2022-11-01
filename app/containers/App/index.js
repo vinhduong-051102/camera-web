@@ -66,7 +66,7 @@ export default function App() {
             exact
             path="/danh-sach-san-pham"
             component={() =>
-              accessToken ? <ProductsPage /> : <Redirect to="/login" />
+              !accessToken ? <ProductsPage /> : <Redirect to="/login" />
             }
           />
 
@@ -74,7 +74,7 @@ export default function App() {
             exact
             path="/danh-sach-hang-san-pham"
             component={() =>
-              accessToken ? <ProductLinePage /> : <Redirect to="/login" />
+              !accessToken ? <ProductLinePage /> : <Redirect to="/login" />
             }
           />
 

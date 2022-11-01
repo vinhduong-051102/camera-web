@@ -62,6 +62,7 @@ const HomePage = () => {
       dataIndex: 'stt',
       width: 80,
       align: 'center',
+      responsive: ['lg'],
     },
     // {
     //   title: 'Ảnh',
@@ -75,6 +76,7 @@ const HomePage = () => {
       title: 'Tên',
       dataIndex: 'name',
       width: !screen.xl || !screen.xxl ? 100 : 200,
+      responsive: ['xs'],
     },
     {
       title: 'Mô tả',
@@ -93,27 +95,28 @@ const HomePage = () => {
             {description}
           </StyledDescription>
         ),
+      responsive: ['xs'],
     },
 
     {
       title: 'Giá',
       dataIndex: 'price',
-      width: 250,
+      responsive: ['xs'],
     },
     {
       title: 'Khuyến mại',
       dataIndex: 'discount',
-      width: 250,
+      responsive: ['xs'],
     },
     {
       title: 'Hoa hồng',
       dataIndex: 'bonus',
-      width: 250,
+      responsive: ['xs'],
     },
     {
       title: 'Tổng',
       dataIndex: 'total',
-      width: 250,
+      responsive: ['xs'],
     },
     {
       title: 'Thao tác',

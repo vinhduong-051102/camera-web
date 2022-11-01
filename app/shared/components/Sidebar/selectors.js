@@ -8,18 +8,22 @@ export const selectData = () =>
   createSelector(
     selectSidebar,
     state => {
-      const tableData = state.data.data.map((item, index) => {
-        const { name, description, imagePath, createAt, id } = item;
-        return {
-          key: index,
-          name,
-          description,
-          imagePath,
-          createAt: new Date(createAt).toUTCString(),
-          stt: index + 1,
-          id,
-        };
-      });
+      let tableData = [];
+      if (state.data.data && Array.isArray(state.data.data)) {
+        tableData = state.data.data.map((item, index) => {
+          const { name, description, imagePath, createAt, id } = item;
+          return {
+            key: index,
+            name,
+            description,
+            imagePath,
+            createAt: new Date(createAt).toUTCString(),
+            stt: index + 1,
+            id,
+          };
+        });
+      }
+
       return tableData;
     },
   );
