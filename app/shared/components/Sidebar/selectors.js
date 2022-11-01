@@ -7,5 +7,19 @@ export const selectSidebar = state => state[REDUX_KEY.header] || initialState;
 export const selectData = () =>
   createSelector(
     selectSidebar,
-    state => state.data,
+    state => {
+      const tableData = state.data.map((item, index) => {
+        const { name, description, imagePath, createAt, id } = item;
+        return {
+          key: index,
+          name,
+          description,
+          imagePath,
+          createAt: new Date(createAt).toUTCString(),
+          stt: index + 1,
+          id
+        };
+      });
+      return tableData;
+    },
   );

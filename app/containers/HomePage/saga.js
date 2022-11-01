@@ -55,18 +55,7 @@ export function* searchProductLine(action) {
     const res = yield call(axiosGet, path, body);
     if (res.data) {
       const rawData = res.data.data;
-      const tableData = rawData.map((item, index) => {
-        const { name, description, imagePath, createAt } = item;
-        return {
-          key: index,
-          name,
-          description,
-          imagePath,
-          createAt: new Date(createAt).toUTCString(),
-          stt: index + 1,
-        };
-      });
-      yield put(getDataProductLine(tableData));
+      yield put(getDataProductLine(rawData));
     }
   } catch (error) {
     throw new Error(error);
