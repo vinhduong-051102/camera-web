@@ -8,6 +8,7 @@ export const selectData = () =>
   createSelector(
     selectSidebar,
     state => {
+      console.log(state);
       const tableData = state.data.data.map((item, index) => {
         const { name, description, imagePath, createAt, id } = item;
         return {

@@ -4,6 +4,7 @@ import {
   ACTION_BEGIN,
   ACTION_PREPARE_POST_PRODUCT_LINE,
   ACTION_SEARCH_PRODUCT_LINE_BY_ID,
+  ACTION_DELETE_PRODUCT_LINE_BY_ID,
 } from './constants';
 
 export const postProductLine = payload => ({
@@ -26,5 +27,10 @@ export const preparePostProductLine = payload => ({
 
 export const searchProductLine = payload => ({
   type: ACTION_SEARCH_PRODUCT_LINE_BY_ID,
+  payload,
+});
+
+export const deleteProductLine = payload => ({
+  type: ACTION_DELETE_PRODUCT_LINE_BY_ID,
   payload,
 });

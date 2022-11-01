@@ -1,8 +1,11 @@
 import { takeLatest, put, call, debounce } from 'redux-saga/effects';
 import * as actions from './actions';
 import * as constants from './constants';
-import { axiosGet, axiosPost } from '../../utils/request';
-import { getDataProductLine } from '../../shared/components/Sidebar/actions';
+import { axiosDelete, axiosGet, axiosPost } from '../../utils/request';
+import {
+  fetchDataProductLine,
+  getDataProductLine,
+} from '../../shared/components/Sidebar/actions';
 
 export function* preparePostProductLine(action) {
   const body = { ...action.payload };
@@ -27,7 +30,9 @@ export function* postProductLine(action) {
   const path = '/v1/product-line';
   try {
     const res = yield call(axiosPost, path, body);
-    console.log(res);
+    if (res.status === 200) {
+      yield put(fetchDataProductLine());
+    }
   } catch (err) {
     throw new Error(err);
   }
@@ -35,7 +40,7 @@ export function* postProductLine(action) {
 
 export function* searchProductLine(action) {
   const body = action.payload;
-  const path = 'http://10.2.65.99:7777/api/v1/product-line';
+  const path = '/v1/product-line';
   yield put(actions.begin());
   try {
     const res = yield call(axiosGet, path, body);
@@ -45,6 +50,22 @@ export function* searchProductLine(action) {
     }
   } catch (error) {
     throw new Error(error);
+  }
+  yield put(actions.end());
+}
+
+export function* deleteProductLine(action) {
+  const body = action.payload;
+  const path = `/v1/product-line/${body}`;
+  yield put(actions.begin());
+  try {
+    const res = yield call(axiosDelete, path);
+    if (res.status === 200) {
+      yield put(fetchDataProductLine());
+    }
+    console.log(res);
+  } catch (err) {
+    throw new Error(err);
   }
   yield put(actions.end());
 }
@@ -59,5 +80,9 @@ export default function* watchFetchMonitor() {
     800,
     constants.ACTION_SEARCH_PRODUCT_LINE_BY_ID,
     searchProductLine,
+  );
+  yield takeLatest(
+    constants.ACTION_DELETE_PRODUCT_LINE_BY_ID,
+    deleteProductLine,
   );
 }

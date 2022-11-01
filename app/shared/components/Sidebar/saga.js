@@ -4,7 +4,7 @@ import * as actions from './actions';
 import { axiosGet } from '../../../utils/request';
 
 export function* getDataProductLine() {
-  const path = 'http://10.2.65.99:7777/api/v1/product-line';
+  const path = '/v1/product-line';
   try {
     const res = yield call(axiosGet, path);
     const { data } = res;
@@ -15,7 +15,14 @@ export function* getDataProductLine() {
 }
 
 export function* getDataProducts() {
-  console.log('anything');
+  const path = '/v1/product-line';
+  try {
+    const res = yield call(axiosGet, path);
+    const { data } = res;
+    yield put(actions.getDataProductLine(data));
+  } catch (error) {
+    throw new Error(error);
+  }
 }
 
 export default function* watchFetchMonitor() {

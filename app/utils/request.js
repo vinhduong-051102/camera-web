@@ -72,3 +72,23 @@ export async function axiosPost(path, body) {
     });
   return res;
 }
+
+export async function axiosDelete(path, body) {
+  const res = await instance
+    .delete(path, body)
+    .then(checkStatus)
+    .catch(error => {
+      if (!JSON.parse(JSON.stringify(error)).response) throw error;
+    });
+  return res;
+}
+
+export async function axiosPut(path, body) {
+  const res = await instance
+    .put(path, body)
+    .then(checkStatus)
+    .catch(error => {
+      if (!JSON.parse(JSON.stringify(error)).response) throw error;
+    });
+  return res;
+}

@@ -272,7 +272,7 @@ const HomePage = () => {
   };
 
   const handleDelProductLine = id => {
-    alert(id);
+    dispatch(actions.deleteProductLine(id));
   };
 
   const handleToggleShowAllDesc = () => {
