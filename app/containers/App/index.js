@@ -10,8 +10,8 @@ import React from 'react';
 
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
-
-import HomePage from 'containers/HomePage/Loadable';
+import ProductLinePage from 'containers/ProductLinePage/Loadable';
+import ProductsPage from 'containers/ProductsPage/Loadable';
 import ErrorPage from 'shared/components/ErrorPage';
 import { Layout } from 'antd';
 import { useSelector } from 'react-redux';
@@ -66,7 +66,7 @@ export default function App() {
             exact
             path="/danh-sach-san-pham"
             component={() =>
-              accessToken ? <HomePage /> : <Redirect to="/login" />
+              accessToken ? <ProductsPage /> : <Redirect to="/login" />
             }
           />
 
@@ -74,7 +74,7 @@ export default function App() {
             exact
             path="/danh-sach-hang-san-pham"
             component={() =>
-              accessToken ? <HomePage /> : <Redirect to="/login" />
+              accessToken ? <ProductLinePage /> : <Redirect to="/login" />
             }
           />
 

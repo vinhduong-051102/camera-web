@@ -41,7 +41,7 @@ const HomePage = () => {
   const dialogCofig = useSelector(selectDialogCofig());
   const isProcessing = useSelector(selectIsProcessing());
   const dispatch = useDispatch();
-  const key = REDUX_KEY.homePage;
+  const key = REDUX_KEY.productLinePage;
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
   const screen = Grid.useBreakpoint();
