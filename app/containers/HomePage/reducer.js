@@ -1,8 +1,9 @@
 import produce from 'immer';
-import { ACTION_END, ACTION_BEGIN } from './constants';
+import { ACTION_END, ACTION_BEGIN, ACTION_OPEN_DIALOG } from './constants';
 
 export const initialState = {
   isProcessing: false,
+  dialogCofig: {},
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -15,6 +16,8 @@ const homePageReducer = (state = initialState, action) =>
       case ACTION_END:
         draft.isProcessing = false;
         break;
+      case ACTION_OPEN_DIALOG:
+        draft.dialogCofig = action.payload;
     }
   });
 

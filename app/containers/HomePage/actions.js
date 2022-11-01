@@ -5,6 +5,8 @@ import {
   ACTION_PREPARE_POST_PRODUCT_LINE,
   ACTION_SEARCH_PRODUCT_LINE_BY_ID,
   ACTION_DELETE_PRODUCT_LINE_BY_ID,
+  ACTION_PUT_PRODUCT_LINE_BY_ID,
+  ACTION_OPEN_DIALOG,
 } from './constants';
 
 export const postProductLine = payload => ({
@@ -32,5 +34,15 @@ export const searchProductLine = payload => ({
 
 export const deleteProductLine = payload => ({
   type: ACTION_DELETE_PRODUCT_LINE_BY_ID,
+  payload,
+});
+
+export const putProductLine = payload => ({
+  type: ACTION_PUT_PRODUCT_LINE_BY_ID,
+  payload,
+});
+
+export const openDialog = payload => ({
+  type: ACTION_OPEN_DIALOG,
   payload,
 });

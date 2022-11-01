@@ -10,3 +10,9 @@ export const selectIsProcessing = () =>
     selectLoginPage,
     state => state.isProcessing,
   );
+
+export const selectDialogCofig = () =>
+  createSelector(
+    selectLoginPage,
+    state => state.dialogCofig,
+  );

@@ -17,6 +17,7 @@ import {
   Grid,
   Popconfirm,
   Descriptions,
+  notification,
 } from 'antd';
 import {
   Container,
@@ -34,9 +35,10 @@ import { useInjectReducer } from '../../utils/injectReducer';
 import { useInjectSaga } from '../../utils/injectSaga';
 import { REDUX_KEY } from '../../utils/constants';
 import * as actions from './actions';
-import { selectIsProcessing } from './selectors';
+import { selectIsProcessing, selectDialogCofig } from './selectors';
 
 const HomePage = () => {
+  const dialogCofig = useSelector(selectDialogCofig());
   const isProcessing = useSelector(selectIsProcessing());
   const dispatch = useDispatch();
   const key = REDUX_KEY.homePage;
@@ -52,6 +54,8 @@ const HomePage = () => {
   const [isOpenViewDetail, setIsOpenViewDetail] = React.useState(false);
   const [titleModal, setTitleModal] = React.useState('');
   const [showAllDesc, setShowAllDesc] = React.useState(false);
+  const [productLineId, setProductLineId] = React.useState(undefined);
+
   const PcColumns = [
     {
       title: 'STT',
@@ -126,7 +130,7 @@ const HomePage = () => {
               icon={<EditOutlined />}
               shape="circle"
               type="primary"
-              onClick={() => handleOpenModal('Sửa')}
+              onClick={() => handleOpenModal('Sửa', id)}
             />
           </Tooltip>
         </div>
@@ -218,7 +222,10 @@ const HomePage = () => {
 
   // upload modal
 
-  const handleOpenModal = title => {
+  const handleOpenModal = (title, id) => {
+    if (id) {
+      setProductLineId(id);
+    }
     setTitleModal(title);
     setIsOpenModal(true);
   };
@@ -239,6 +246,7 @@ const HomePage = () => {
   };
 
   const handleResetForm = () => {
+    setIsOpenModal(false);
     form.setFieldsValue({
       name: '',
       description: '',
@@ -255,17 +263,15 @@ const HomePage = () => {
   };
 
   const handleSubmitForm = values => {
-    if (titleModal === 'Sửa') {
-      alert('submit edit');
-    } else if (titleModal === 'Thêm mới') {
-      dispatch(
-        actions.preparePostProductLine({
-          name: values.name,
-          description: values.description,
-          image: values.image.file.originFileObj,
-        }),
-      );
-    }
+    dispatch(
+      actions.preparePostProductLine({
+        name: values.name,
+        description: values.description,
+        image: values.image.file.originFileObj,
+        id: productLineId,
+      }),
+    );
+    setProductLineId(undefined);
     if (!isProcessing) {
       handleResetForm();
     }
@@ -278,6 +284,16 @@ const HomePage = () => {
   const handleToggleShowAllDesc = () => {
     setShowAllDesc(prev => !prev);
   };
+
+  React.useEffect(() => {
+    const { type, message, description } = dialogCofig;
+    if (type) {
+      notification[type]({
+        message,
+        description,
+      });
+    }
+  }, [dialogCofig]);
 
   return (
     <Container>
@@ -314,6 +330,7 @@ const HomePage = () => {
         //   },
         // ]}
         size="large"
+        loading={isProcessing}
       />
 
       <Modal
