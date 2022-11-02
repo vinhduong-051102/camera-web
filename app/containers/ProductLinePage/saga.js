@@ -1,4 +1,11 @@
-import { takeLatest, put, call, debounce, delay } from 'redux-saga/effects';
+import {
+  takeLatest,
+  put,
+  call,
+  debounce,
+  delay,
+  select,
+} from 'redux-saga/effects';
 import * as actions from './actions';
 import * as constants from './constants';
 import {
@@ -8,9 +15,10 @@ import {
   axiosPut,
 } from '../../utils/request';
 import {
-  fetchDataProductLine,
-  getDataProductLine,
+  fetchDataProductLineSuccess,
+  getDataProductLineSuccess,
 } from '../../shared/components/Sidebar/actions';
+import { selectProductLineData } from '../../shared/components/Sidebar/selectors';
 
 export function* preparePostProductLine(action) {
   const body = { ...action.payload };
@@ -41,7 +49,7 @@ export function* putProductLine(action) {
   try {
     const res = yield call(axiosPut, path, body);
     if (res.status === 200) {
-      yield put(fetchDataProductLine());
+      yield put(fetchDataProductLineSuccess());
       yield call(
         openDialog,
         'success',
@@ -60,7 +68,7 @@ export function* postProductLine(action) {
   try {
     const res = yield call(axiosPost, path, body);
     if (res.status === 200) {
-      yield put(fetchDataProductLine());
+      yield put(fetchDataProductLineSuccess());
       yield call(
         openDialog,
         'success',
@@ -74,14 +82,28 @@ export function* postProductLine(action) {
 }
 
 export function* searchProductLine(action) {
+  const dataProductLine = yield select(selectProductLineData());
   const body = action.payload;
-  const path = '/v1/product-line';
+  const isContainSearchName = dataProductLine.some(
+    item => item.name === body || body === '',
+  );
+
   yield put(actions.begin());
   try {
-    const res = yield call(axiosGet, path, body);
-    if (res.data) {
-      const rawData = res.data.data;
-      yield put(getDataProductLine(rawData));
+    if (isContainSearchName) {
+      const path = `/v1/product-line/?name=${body}`;
+      const res = yield call(axiosGet, path, body);
+      if (res.data) {
+        const rawData = res.data.data;
+        yield put(getDataProductLineSuccess(rawData));
+      }
+    } else {
+      // const path = `/v1/product-line/${body}`;
+      // const res = yield call(axiosGet, path, body);
+      // if (res.data) {
+      //   const rawData = res.data;
+      //   yield put(getDataProductLineSuccess([rawData]));
+      // }
     }
   } catch (error) {
     throw new Error(error);
@@ -96,7 +118,7 @@ export function* deleteProductLine(action) {
   try {
     const res = yield call(axiosDelete, path);
     if (res.status === 200) {
-      yield put(fetchDataProductLine());
+      yield put(fetchDataProductLineSuccess());
       yield call(
         openDialog,
         'success',
@@ -131,7 +153,12 @@ export default function* watchFetchMonitor() {
     preparePostProductLine,
   );
   yield debounce(
-    800,
+    500,
+    constants.ACTION_SEARCH_PRODUCT_LINE_BY_ID,
+    searchProductLine,
+  );
+  yield debounce(
+    500,
     constants.ACTION_SEARCH_PRODUCT_LINE_BY_ID,
     searchProductLine,
   );

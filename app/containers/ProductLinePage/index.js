@@ -240,7 +240,7 @@ const ProductLinePage = () => {
   const handleInputSearch = e => {
     const { value } = e.target;
     setSearchValue(value);
-    actions.searchProductLine(value);
+    dispatch(actions.searchProductLine(value));
   };
 
   const handleResetForm = () => {

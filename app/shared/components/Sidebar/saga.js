@@ -10,7 +10,7 @@ export function* getDataProductLine() {
     const res = yield call(axiosGet, path);
     const { data } = res;
     if (data.data) {
-      yield put(actions.getDataProductLine(data.data));
+      yield put(actions.getDataProductLineSuccess(data.data));
     }
   } catch (error) {
     throw new Error(error);
@@ -26,7 +26,7 @@ export function* getDataProducts() {
 `;
     const res = yield call(axiosGet, path);
     const { data } = res.data;
-    yield put(actions.getDataProducts(data.response));
+    yield put(actions.getDataProductsSuccess(data.response));
     const productLineRes = yield call(axiosGet, '/v1/product-line');
     if (productLineRes.data) {
       const listProductLineId = productLineRes.data.data.map(item => item.id);
@@ -39,6 +39,9 @@ export function* getDataProducts() {
 }
 
 export default function* watchFetchMonitor() {
-  yield takeLatest(constants.FETCH_DATA_PRODUCTS, getDataProducts);
-  yield takeLatest(constants.FETCH_DATA_PRODUCT_LINE, getDataProductLine);
+  yield takeLatest(constants.ACTION_FETCH_DATA_PRODUCTS, getDataProducts);
+  yield takeLatest(
+    constants.ACTION_FETCH_DATA_PRODUCT_LINE,
+    getDataProductLine,
+  );
 }

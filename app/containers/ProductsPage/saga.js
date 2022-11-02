@@ -8,26 +8,51 @@ import {
   axiosPut,
 } from '../../utils/request';
 import {
-  fetchDataProductLine,
-  getDataProductLine,
+  fetchDataProductsSuccess,
+  getDataProductsSuccess,
 } from '../../shared/components/Sidebar/actions';
 
-export function* preparePostProductLine(action) {
+export function* preparePostProduct(action) {
   const body = { ...action.payload };
-  const { name, description, image, id } = body;
-  const imgFile = image;
-  const formData = new FormData();
-  const imgApiPath = '/v1/image/product_line/upload';
-  formData.append('file', imgFile);
+  const {
+    name,
+    description,
+    image,
+    id,
+    price,
+    discount,
+    bonus,
+    idBonusType,
+    productLineId,
+  } = body;
+  const total = +price - (+price * +discount) / 100;
+  const listImgFile = image;
+  const imgApiPath = '/v1/image/product/upload';
   yield put(actions.begin());
   try {
-    const res = yield call(axiosPost, imgApiPath, formData);
-    const imageId = res.data.data.id;
-    const payload = { name, description, imageId };
+    const listIdAvatar = [];
+    for (let i = 0; i < listImgFile.length; i += 1) {
+      const formData = new FormData();
+      formData.append('file', listImgFile[0]);
+      const res = yield call(axiosPost, imgApiPath, formData);
+      const imageId = res.data.data.id;
+      listIdAvatar.push(imageId);
+    }
+    const payload = {
+      name,
+      description,
+      listIdAvatar,
+      idBonusType: +idBonusType,
+      discount: +discount,
+      price: +price,
+      bonus: +bonus,
+      total,
+      productLineId,
+    };
     if (id) {
-      yield put(actions.putProductLine({ ...payload, id }));
+      yield put(actions.putProduct({ ...payload, id }));
     } else {
-      yield put(actions.postProductLine(payload));
+      yield put(actions.postProduct(payload));
     }
   } catch (err) {
     throw new Error(err);
@@ -35,13 +60,13 @@ export function* preparePostProductLine(action) {
   yield put(actions.end());
 }
 
-export function* putProductLine(action) {
+export function* putProduct(action) {
   const body = action.payload;
-  const path = '/v1/product-line';
+  const path = '/v1/products';
   try {
     const res = yield call(axiosPut, path, body);
     if (res.status === 200) {
-      yield put(fetchDataProductLine());
+      yield put(fetchDataProductsSuccess());
       yield call(
         openDialog,
         'success',
@@ -54,13 +79,13 @@ export function* putProductLine(action) {
   }
 }
 
-export function* postProductLine(action) {
+export function* postProduct(action) {
   const body = action.payload;
-  const path = '/v1/product-line';
+  const path = '/v1/products';
   try {
     const res = yield call(axiosPost, path, body);
     if (res.status === 200) {
-      yield put(fetchDataProductLine());
+      yield put(fetchDataProductsSuccess());
       yield call(
         openDialog,
         'success',
@@ -73,15 +98,15 @@ export function* postProductLine(action) {
   }
 }
 
-export function* searchProductLine(action) {
+export function* searchProduct(action) {
   const body = action.payload;
-  const path = '/v1/product-line';
+  const path = '/v1/products';
   yield put(actions.begin());
   try {
     const res = yield call(axiosGet, path, body);
     if (res.data) {
       const rawData = res.data.data;
-      yield put(getDataProductLine(rawData));
+      yield put(getDataProductsSuccess(rawData));
     }
   } catch (error) {
     throw new Error(error);
@@ -89,14 +114,14 @@ export function* searchProductLine(action) {
   yield put(actions.end());
 }
 
-export function* deleteProductLine(action) {
+export function* deleteProduct(action) {
   const body = action.payload;
-  const path = `/v1/product-line/${body}`;
+  const path = `/v1/products/${body}`;
   yield put(actions.begin());
   try {
     const res = yield call(axiosDelete, path);
     if (res.status === 200) {
-      yield put(fetchDataProductLine());
+      yield put(fetchDataProductsSuccess());
       yield call(
         openDialog,
         'success',
@@ -123,20 +148,9 @@ export function* openDialog(type, message, description) {
 }
 
 export default function* watchFetchMonitor() {
-  yield takeLatest(constants.ACTION_POST_PRODUCTLINE, postProductLine);
-  yield takeLatest(constants.ACTION_PUT_PRODUCT_LINE_BY_ID, putProductLine);
-
-  yield takeLatest(
-    constants.ACTION_PREPARE_POST_PRODUCT_LINE,
-    preparePostProductLine,
-  );
-  yield debounce(
-    800,
-    constants.ACTION_SEARCH_PRODUCT_LINE_BY_ID,
-    searchProductLine,
-  );
-  yield takeLatest(
-    constants.ACTION_DELETE_PRODUCT_LINE_BY_ID,
-    deleteProductLine,
-  );
+  yield takeLatest(constants.ACTION_POST_PRODUCTS, postProduct);
+  yield takeLatest(constants.ACTION_PUT_PRODUCTS_BY_ID, putProduct);
+  yield takeLatest(constants.ACTION_PREPARE_POST_PRODUCTS, preparePostProduct);
+  yield debounce(800, constants.ACTION_SEARCH_PRODUCTS_BY_ID, searchProduct);
+  yield takeLatest(constants.ACTION_DELETE_PRODUCTS_BY_ID, deleteProduct);
 }

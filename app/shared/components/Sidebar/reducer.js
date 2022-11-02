@@ -1,7 +1,7 @@
 import produce from 'immer';
 import {
-  GET_DATA_PRODUCT_LINE,
-  GET_DATA_PRODUCTS,
+  ACTION_GET_DATA_PRODUCT_LINE,
+  ACTION_GET_DATA_PRODUCTS,
   ACTION_END,
   ACTION_BEGIN,
   ACTION_GET_LIST_PRODUCT_LINE_ID,
@@ -18,10 +18,10 @@ export const initialState = {
 const sidebarReducer = (state = initialState, action) =>
   produce(state, draft => {
     switch (action.type) {
-      case GET_DATA_PRODUCT_LINE:
+      case ACTION_GET_DATA_PRODUCT_LINE:
         draft.productLineData = action.payload;
         break;
-      case GET_DATA_PRODUCTS:
+      case ACTION_GET_DATA_PRODUCTS:
         draft.productsData = action.payload;
         break;
       case ACTION_END:

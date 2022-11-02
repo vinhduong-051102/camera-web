@@ -56,9 +56,9 @@ const Sidebar = () => {
     const arr = location.href.split('/');
     setCurrPath(arr[3]);
     if (arr[3] === 'danh-sach-san-pham') {
-      dispatch(actions.fetchDataProducts());
+      dispatch(actions.fetchDataProductsSuccess());
     } else {
-      dispatch(actions.fetchDataProductLine());
+      dispatch(actions.fetchDataProductLineSuccess());
     }
     // eslint-disable-next-line no-restricted-globals
   }, [location.href]);

@@ -81,6 +81,7 @@ const ProductsPage = () => {
   const [isOpenViewDetail, setIsOpenViewDetail] = React.useState(false);
   const [titleModal, setTitleModal] = React.useState('');
   const [showAllDesc, setShowAllDesc] = React.useState(false);
+  const [productId, setProductId] = React.useState(undefined);
 
   const columns = [
     {
@@ -162,7 +163,7 @@ const ProductsPage = () => {
             title="Xác nhận xoá"
             okText="Xác nhận"
             cancelText="Huỷ"
-            onConfirm={() => handleDelProductLine(id)}
+            onConfirm={() => handleDelProduct(id)}
           >
             <Tooltip title="Xoá">
               <Button
@@ -206,7 +207,7 @@ const ProductsPage = () => {
             title="Xác nhận xoá"
             okText="Xác nhận"
             cancelText="Huỷ"
-            onConfirm={() => handleDelProductLine(id)}
+            onConfirm={() => handleDelProduct(id)}
           >
             <Tooltip title="Xoá">
               <Button
@@ -264,9 +265,10 @@ const ProductsPage = () => {
 
   // upload modal
 
-  const handleOpenModal = title => {
+  const handleOpenModal = (title, id) => {
     setTitleModal(title);
     setIsOpenModal(true);
+    setProductId(id);
   };
 
   const handleCloseModal = () => {
@@ -281,7 +283,7 @@ const ProductsPage = () => {
   const handleInputSearch = e => {
     const { value } = e.target;
     setSearchValue(value);
-    actions.searchProductLine(value);
+    actions.searchProducts(value);
   };
 
   const handleResetForm = () => {
@@ -306,14 +308,23 @@ const ProductsPage = () => {
   };
 
   const handleSubmitForm = values => {
-    console.log(values);
+    const listImageFile = values.image.fileList.map(img => img.originFileObj);
+    dispatch(
+      actions.preparePostProduct({
+        ...values,
+        image: listImageFile,
+        id: productId,
+      }),
+    );
     if (!isProcessing) {
       handleResetForm();
+      setProductId(undefined);
     }
   };
 
-  const handleDelProductLine = id => {
-    dispatch(actions.deleteProductLine(id));
+  const handleDelProduct = id => {
+    dispatch(actions.deleteProduct(id));
+    // alert(id);
   };
 
   const handleToggleShowAllDesc = () => {
