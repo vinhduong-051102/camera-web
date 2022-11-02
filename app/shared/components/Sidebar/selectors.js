@@ -20,6 +20,7 @@ export const selectProductLineData = () =>
           id,
         };
       });
+
       return tableData;
     },
   );

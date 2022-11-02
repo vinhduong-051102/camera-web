@@ -88,6 +88,7 @@ const ProductsPage = () => {
       dataIndex: 'stt',
       width: 80,
       align: 'center',
+      responsive: ['lg'],
     },
     // {
     //   title: 'Ảnh',
@@ -126,21 +127,25 @@ const ProductsPage = () => {
     {
       title: 'Giá',
       dataIndex: 'price',
+
       responsive: ['xxl', 'xl', 'lg'],
     },
     {
       title: 'Khuyến mãi',
       dataIndex: 'discount',
+
       responsive: ['xxl', 'xl', 'lg'],
     },
     {
       title: 'Hoa hồng',
       dataIndex: 'bonus',
+
       responsive: ['xxl', 'xl', 'lg'],
     },
     {
       title: 'Tổng',
       dataIndex: 'total',
+
       responsive: ['xxl', 'xl', 'lg'],
     },
     {

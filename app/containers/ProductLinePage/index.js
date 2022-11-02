@@ -326,7 +326,6 @@ const ProductLinePage = () => {
         //     createAt: new Date(new Date().valueOf()).toUTCString(),
         //     id: 0,
         //   },
-        // ]}
         size="large"
         loading={isProcessing}
       />
