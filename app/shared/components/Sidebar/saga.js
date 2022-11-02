@@ -5,24 +5,37 @@ import { axiosGet } from '../../../utils/request';
 
 export function* getDataProductLine() {
   const path = '/v1/product-line';
+  yield put(actions.begin());
   try {
     const res = yield call(axiosGet, path);
     const { data } = res;
-    yield put(actions.getDataProductLine(data));
+    if (data.data) {
+      yield put(actions.getDataProductLine(data.data));
+    }
   } catch (error) {
     throw new Error(error);
   }
+  yield put(actions.end());
 }
 
 export function* getDataProducts() {
-  const path = '/v1/product-line';
+  const currentPage = 1;
+  yield put(actions.begin());
   try {
+    const path = `/v1/products?currentPage=${currentPage}&productLineId=00000000-0000-0000-0000-000000000000
+`;
     const res = yield call(axiosGet, path);
-    const { data } = res;
-    yield put(actions.getDataProductLine(data));
+    const { data } = res.data;
+    yield put(actions.getDataProducts(data.response));
+    const productLineRes = yield call(axiosGet, '/v1/product-line');
+    if (productLineRes.data) {
+      const listProductLineId = productLineRes.data.data.map(item => item.id);
+      yield put(actions.getListProductLineId(listProductLineId));
+    }
   } catch (error) {
     throw new Error(error);
   }
+  yield put(actions.end());
 }
 
 export default function* watchFetchMonitor() {

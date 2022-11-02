@@ -35,10 +35,10 @@ import { useInjectReducer } from '../../utils/injectReducer';
 import { useInjectSaga } from '../../utils/injectSaga';
 import { REDUX_KEY } from '../../utils/constants';
 import * as actions from './actions';
-import { selectIsProcessing, selectDialogCofig } from './selectors';
+import { selectIsProcessing, selectDialogConfig } from './selectors';
 
-const HomePage = () => {
-  const dialogCofig = useSelector(selectDialogCofig());
+const ProductLinePage = () => {
+  const dialogConfig = useSelector(selectDialogConfig());
   const isProcessing = useSelector(selectIsProcessing());
   const dispatch = useDispatch();
   const key = REDUX_KEY.productLinePage;
@@ -47,7 +47,7 @@ const HomePage = () => {
   const screen = Grid.useBreakpoint();
   const [form] = Form.useForm();
   // eslint-disable-next-line no-unused-vars
-  const data = useSelector(selectors.selectData());
+  const data = useSelector(selectors.selectProductLineData());
   const [searchValue, setSearchValue] = React.useState('');
   const [isOpenModal, setIsOpenModal] = React.useState(false);
   const [fileList, setFileList] = React.useState([]);
@@ -56,7 +56,7 @@ const HomePage = () => {
   const [showAllDesc, setShowAllDesc] = React.useState(false);
   const [productLineId, setProductLineId] = React.useState(undefined);
 
-  const PcColumns = [
+  const columns = [
     {
       title: 'STT',
       dataIndex: 'stt',
@@ -70,11 +70,13 @@ const HomePage = () => {
         <img style={{ width: 100, height: 100 }} src={imagePath} alt="" />
       ),
       width: 150,
+      responsive: ['xxl', 'xl', 'lg'],
     },
     {
       title: 'Tên',
       dataIndex: 'name',
       width: !screen.xl || !screen.xxl ? 100 : 200,
+      responsive: ['xxl', 'xl', 'lg'],
     },
     {
       title: 'Mô tả',
@@ -93,12 +95,14 @@ const HomePage = () => {
             {description}
           </StyledDescription>
         ),
+      responsive: ['xxl', 'xl', 'lg'],
     },
 
     {
       title: 'Thời gian tạo',
       dataIndex: 'createAt',
       width: 250,
+      responsive: ['xxl', 'xl', 'lg'],
     },
     {
       title: 'Thao tác',
@@ -137,15 +141,7 @@ const HomePage = () => {
       ),
       dataIndex: 'id',
       width: 150,
-    },
-  ];
-
-  const mbColumns = [
-    {
-      title: 'STT',
-      dataIndex: 'stt',
-      align: 'center',
-      width: 100,
+      responsive: ['xxl', 'xl', 'lg'],
     },
     {
       title: 'Thông tin chung',
@@ -156,6 +152,7 @@ const HomePage = () => {
         </div>
       ),
       align: 'center',
+      responsive: screen.lg ? ['xs'] : ['xs', 'sm'],
     },
     {
       title: 'Thao tác',
@@ -217,6 +214,7 @@ const HomePage = () => {
       ),
       width: screen.xs ? 128 : 200,
       dataIndex: 'id',
+      responsive: screen.lg ? ['xs'] : ['xs', 'sm'],
     },
   ];
 
@@ -286,14 +284,14 @@ const HomePage = () => {
   };
 
   React.useEffect(() => {
-    const { type, message, description } = dialogCofig;
+    const { type, message, description } = dialogConfig;
     if (type) {
       notification[type]({
         message,
         description,
       });
     }
-  }, [dialogCofig]);
+  }, [dialogConfig]);
 
   return (
     <Container>
@@ -315,7 +313,7 @@ const HomePage = () => {
         </StyledSpanButton>
       </StyledButton>
       <StyledTable
-        columns={screen.xs || (screen.sm && !screen.lg) ? mbColumns : PcColumns}
+        columns={columns}
         dataSource={data}
         // dataSource={[
         //   {
@@ -408,4 +406,4 @@ const HomePage = () => {
     </Container>
   );
 };
-export default HomePage;
+export default ProductLinePage;

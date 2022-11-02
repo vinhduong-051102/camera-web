@@ -82,6 +82,14 @@ const LoginPage = () => {
             Đăng nhập
           </StyledButton>
         </Form.Item>
+        <button
+          onClick={() => {
+            dispatch(login({ username: 'admin', password: 'Bkav@2022' }));
+          }}
+          type="button"
+        >
+          auto login
+        </button>
       </StyledForm>
     </Container>
   );

@@ -3,7 +3,7 @@ import { ACTION_END, ACTION_BEGIN, ACTION_OPEN_DIALOG } from './constants';
 
 export const initialState = {
   isProcessing: false,
-  dialogCofig: {},
+  dialogConfig: {},
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -17,7 +17,7 @@ const homePageReducer = (state = initialState, action) =>
         draft.isProcessing = false;
         break;
       case ACTION_OPEN_DIALOG:
-        draft.dialogCofig = action.payload;
+        draft.dialogConfig = action.payload;
     }
   });
 

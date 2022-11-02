@@ -1,4 +1,4 @@
-import { takeLatest, put, call, debounce } from 'redux-saga/effects';
+import { takeLatest, put, call, debounce, delay } from 'redux-saga/effects';
 import * as actions from './actions';
 import * as constants from './constants';
 import {
@@ -118,6 +118,8 @@ export function* openDialog(type, message, description) {
       description,
     }),
   );
+  yield delay(500);
+  yield put(actions.openDialog({}));
 }
 
 export default function* watchFetchMonitor() {
