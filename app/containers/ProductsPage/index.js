@@ -38,6 +38,7 @@ import { useInjectSaga } from '../../utils/injectSaga';
 import { REDUX_KEY } from '../../utils/constants';
 import * as actions from './actions';
 import { selectIsProcessing, selectDialogConfig } from './selectors';
+import { fetchDataProductsSuccess } from '../../shared/components/Sidebar/actions';
 
 const ProductsPage = () => {
   const schema = yup.object().shape({
@@ -82,14 +83,14 @@ const ProductsPage = () => {
   const [titleModal, setTitleModal] = React.useState('');
   const [showAllDesc, setShowAllDesc] = React.useState(false);
   const [productId, setProductId] = React.useState(undefined);
-
+  const [productLineId, setProductLineId] = React.useState(listProductId[0]);
   const columns = [
     {
       title: 'STT',
       dataIndex: 'stt',
       width: 80,
       align: 'center',
-      responsive: ['lg'],
+      responsive: ['xxl', 'xl', 'lg', 'md', 'sm'],
     },
     // {
     //   title: 'Ảnh',
@@ -128,26 +129,41 @@ const ProductsPage = () => {
     {
       title: 'Giá',
       dataIndex: 'price',
-
-      responsive: ['xxl', 'xl', 'lg'],
+      responsive: screen.xl ? ['xxl', 'xl', 'lg'] : [''],
     },
     {
       title: 'Khuyến mãi',
       dataIndex: 'discount',
-
-      responsive: ['xxl', 'xl', 'lg'],
+      responsive: screen.xl ? ['xxl', 'xl', 'lg'] : [''],
     },
     {
       title: 'Hoa hồng',
       dataIndex: 'bonus',
-
-      responsive: ['xxl', 'xl', 'lg'],
+      responsive: screen.xl ? ['xxl', 'xl', 'lg'] : [''],
     },
     {
       title: 'Tổng',
       dataIndex: 'total',
-
-      responsive: ['xxl', 'xl', 'lg'],
+      responsive: screen.xl ? ['xxl', 'xl', 'lg'] : [''],
+    },
+    {
+      title: 'Thông tin chung về giá',
+      render: (text, record) => (
+        <Descriptions
+          column={{ md: 1 }}
+          size="small"
+          labelStyle={{ fontWeight: 'bold' }}
+        >
+          <Descriptions.Item label="Giá">{record.price}</Descriptions.Item>
+          <Descriptions.Item label="Khuyến mại">
+            {record.discount}
+          </Descriptions.Item>
+          <Descriptions.Item label="Hoa hồng">{record.bonus}</Descriptions.Item>
+          <Descriptions.Item label="Tổng">{record.total}</Descriptions.Item>
+        </Descriptions>
+      ),
+      width: 300,
+      responsive: screen.lg && !screen.xl && !screen.xxl ? ['lg'] : [''],
     },
     {
       title: 'Thao tác',
@@ -324,11 +340,15 @@ const ProductsPage = () => {
 
   const handleDelProduct = id => {
     dispatch(actions.deleteProduct(id));
-    // alert(id);
   };
 
   const handleToggleShowAllDesc = () => {
     setShowAllDesc(prev => !prev);
+  };
+
+  const handleFilterDataByProductLineId = value => {
+    setProductLineId(value);
+    dispatch(fetchDataProductsSuccess(value));
   };
 
   React.useEffect(() => {
@@ -360,11 +380,25 @@ const ProductsPage = () => {
           Thêm mới <PlusCircleOutlined />
         </StyledSpanButton>
       </StyledButton>
+
       <StyledTable
         columns={columns}
         dataSource={data}
         size="large"
         loading={isProcessing}
+        footer={() => (
+          <Select
+            options={listProductId.map(id => ({ value: id, label: id }))}
+            style={
+              !screen.lg && !screen.xl && !screen.xxl
+                ? { width: '98%' }
+                : { width: 320 }
+            }
+            defaultValue={productLineId}
+            onChange={handleFilterDataByProductLineId}
+            value={productLineId}
+          />
+        )}
       />
 
       <Modal

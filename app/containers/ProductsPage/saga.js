@@ -73,6 +73,7 @@ export function* putProduct(action) {
         'Sửa thành công',
         'Cập nhập thành công !!!',
       );
+      yield call(openDialog, '', '', '');
     }
   } catch (err) {
     throw new Error(err);
@@ -92,6 +93,7 @@ export function* postProduct(action) {
         'Thêm  thành công',
         'Cập nhập thành công !!!',
       );
+      yield call(openDialog, '', '', '');
     }
   } catch (err) {
     throw new Error(err);
@@ -116,6 +118,7 @@ export function* searchProduct(action) {
 
 export function* deleteProduct(action) {
   const body = action.payload;
+  console.log('saga: ', body);
   const path = `/v1/products/${body}`;
   yield put(actions.begin());
   try {
@@ -128,6 +131,7 @@ export function* deleteProduct(action) {
         'Xóa thành công',
         'Cập nhập thành công !!!',
       );
+      yield call(openDialog, '', '', '');
     }
   } catch (err) {
     throw new Error(err);

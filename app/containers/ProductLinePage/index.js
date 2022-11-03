@@ -62,6 +62,7 @@ const ProductLinePage = () => {
       dataIndex: 'stt',
       width: 80,
       align: 'center',
+      responsive: ['xxl', 'xl', 'lg', 'md', 'sm'],
     },
     {
       title: 'Ảnh',

@@ -18,12 +18,17 @@ export function* getDataProductLine() {
   yield put(actions.end());
 }
 
-export function* getDataProducts() {
+export function* getDataProducts(action) {
+  const productLineId = action.payload;
   const currentPage = 1;
+  let path = '';
+  if (!productLineId) {
+    path = `/v1/products?currentPage=${currentPage}&productLineId=00000000-0000-0000-0000-000000000000`;
+  } else {
+    path = `/v1/products?currentPage=${currentPage}&productLineId=${productLineId}`;
+  }
   yield put(actions.begin());
   try {
-    const path = `/v1/products?currentPage=${currentPage}&productLineId=00000000-0000-0000-0000-000000000000
-`;
     const res = yield call(axiosGet, path);
     const { data } = res.data;
     yield put(actions.getDataProductsSuccess(data.response));

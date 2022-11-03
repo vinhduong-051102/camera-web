@@ -18,8 +18,9 @@ export const getDataProductsSuccess = data => ({
   payload: data,
 });
 
-export const fetchDataProductsSuccess = () => ({
+export const fetchDataProductsSuccess = payload => ({
   type: ACTION_FETCH_DATA_PRODUCTS,
+  payload,
 });
 
 export const fetchDataProductLineSuccess = () => ({

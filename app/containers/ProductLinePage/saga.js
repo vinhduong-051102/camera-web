@@ -5,6 +5,7 @@ import {
   debounce,
   delay,
   select,
+  putResolve,
 } from 'redux-saga/effects';
 import * as actions from './actions';
 import * as constants from './constants';
@@ -19,6 +20,7 @@ import {
   getDataProductLineSuccess,
 } from '../../shared/components/Sidebar/actions';
 import { selectProductLineData } from '../../shared/components/Sidebar/selectors';
+import { deleteProduct } from '../ProductsPage/actions';
 
 export function* preparePostProductLine(action) {
   const body = { ...action.payload };
@@ -56,6 +58,7 @@ export function* putProductLine(action) {
         'Sửa thành công',
         'Cập nhập thành công !!!',
       );
+      yield call(openDialog, '', '', '');
     }
   } catch (err) {
     throw new Error(err);
@@ -75,6 +78,7 @@ export function* postProductLine(action) {
         'Thêm  thành công',
         'Cập nhập thành công !!!',
       );
+      yield call(openDialog, '', '', '');
     }
   } catch (err) {
     throw new Error(err);
@@ -98,12 +102,16 @@ export function* searchProductLine(action) {
         yield put(getDataProductLineSuccess(rawData));
       }
     } else {
+      if (body === '') {
+        yield put(fetchDataProductLineSuccess());
+      }
       // const path = `/v1/product-line/${body}`;
       // const res = yield call(axiosGet, path, body);
       // if (res.data) {
       //   const rawData = res.data;
       //   yield put(getDataProductLineSuccess([rawData]));
       // }
+      yield put(getDataProductLineSuccess([]));
     }
   } catch (error) {
     throw new Error(error);
@@ -116,6 +124,17 @@ export function* deleteProductLine(action) {
   const path = `/v1/product-line/${body}`;
   yield put(actions.begin());
   try {
+    const listProductInProductLineIdRes = yield call(
+      axiosGet,
+      `/v1/products?currentPage=${1}&productLineId=${body}`,
+    );
+    const listProductInProductLineId =
+      listProductInProductLineIdRes.data.data.response;
+    for (let i = 0; i < listProductInProductLineId.length; i += 1) {
+      const { id } = listProductInProductLineId[i];
+      yield putResolve(deleteProduct(id));
+      console.log(id);
+    }
     const res = yield call(axiosDelete, path);
     if (res.status === 200) {
       yield put(fetchDataProductLineSuccess());
@@ -125,6 +144,7 @@ export function* deleteProductLine(action) {
         'Xóa thành công',
         'Cập nhập thành công !!!',
       );
+      yield call(openDialog, '', '', '');
     }
   } catch (err) {
     throw new Error(err);
