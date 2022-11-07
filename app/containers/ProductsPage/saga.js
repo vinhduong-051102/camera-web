@@ -1,4 +1,11 @@
-import { takeLatest, put, call, debounce, delay } from 'redux-saga/effects';
+import {
+  takeLatest,
+  put,
+  call,
+  debounce,
+  delay,
+  select,
+} from 'redux-saga/effects';
 import * as actions from './actions';
 import * as constants from './constants';
 import {
@@ -11,6 +18,8 @@ import {
   fetchDataProductsSuccess,
   getDataProductsSuccess,
 } from '../../shared/components/Sidebar/actions';
+
+import { selectProductsData } from '../../shared/components/Sidebar/selectors';
 
 export function* preparePostProduct(action) {
   const body = { ...action.payload };
@@ -55,6 +64,8 @@ export function* preparePostProduct(action) {
       yield put(actions.postProduct(payload));
     }
   } catch (err) {
+    yield call(openDialog, 'error', err, 'Có lỗi xảy ra !!!');
+
     throw new Error(err);
   }
   yield put(actions.end());
@@ -73,9 +84,9 @@ export function* putProduct(action) {
         'Sửa thành công',
         'Cập nhập thành công !!!',
       );
-      yield call(openDialog, '', '', '');
     }
   } catch (err) {
+    yield call(openDialog, 'error', err, 'Có lỗi xảy ra !!!');
     throw new Error(err);
   }
 }
@@ -93,24 +104,37 @@ export function* postProduct(action) {
         'Thêm  thành công',
         'Cập nhập thành công !!!',
       );
-      yield call(openDialog, '', '', '');
     }
   } catch (err) {
+    yield call(openDialog, 'error', err, 'Có lỗi xảy ra !!!');
     throw new Error(err);
   }
 }
 
 export function* searchProduct(action) {
+  const dataProduct = yield select(selectProductsData());
   const body = action.payload;
-  const path = '/v1/products';
+  const isContainSearchName = dataProduct.some(
+    item => item.name === body || body === '',
+  );
+
   yield put(actions.begin());
   try {
-    const res = yield call(axiosGet, path, body);
-    if (res.data) {
-      const rawData = res.data.data;
-      yield put(getDataProductsSuccess(rawData));
+    if (isContainSearchName) {
+      const path = `/v1/products?currentPage=1&productLineId=00000000-0000-0000-0000-000000000000&name=${body}`;
+      const res = yield call(axiosGet, path);
+      if (res.data) {
+        const rawData = res.data.data.response;
+        yield put(getDataProductsSuccess(rawData));
+      }
+    } else {
+      if (body === '') {
+        yield put(fetchDataProductsSuccess());
+      }
+      yield put(getDataProductsSuccess([]));
     }
   } catch (error) {
+    yield call(openDialog, 'error', error, 'Có lỗi xảy ra !!!');
     throw new Error(error);
   }
   yield put(actions.end());
@@ -118,7 +142,6 @@ export function* searchProduct(action) {
 
 export function* deleteProduct(action) {
   const body = action.payload;
-  console.log('saga: ', body);
   const path = `/v1/products/${body}`;
   yield put(actions.begin());
   try {
@@ -131,9 +154,9 @@ export function* deleteProduct(action) {
         'Xóa thành công',
         'Cập nhập thành công !!!',
       );
-      yield call(openDialog, '', '', '');
     }
   } catch (err) {
+    yield call(openDialog, 'error', err, 'Có lỗi xảy ra !!!');
     throw new Error(err);
   }
   yield put(actions.end());
@@ -147,7 +170,7 @@ export function* openDialog(type, message, description) {
       description,
     }),
   );
-  yield delay(500);
+  yield delay(100);
   yield put(actions.openDialog({}));
 }
 
@@ -155,6 +178,6 @@ export default function* watchFetchMonitor() {
   yield takeLatest(constants.ACTION_POST_PRODUCTS, postProduct);
   yield takeLatest(constants.ACTION_PUT_PRODUCTS_BY_ID, putProduct);
   yield takeLatest(constants.ACTION_PREPARE_POST_PRODUCTS, preparePostProduct);
-  yield debounce(800, constants.ACTION_SEARCH_PRODUCTS_BY_ID, searchProduct);
+  yield debounce(500, constants.ACTION_SEARCH_PRODUCTS_BY_ID, searchProduct);
   yield takeLatest(constants.ACTION_DELETE_PRODUCTS_BY_ID, deleteProduct);
 }

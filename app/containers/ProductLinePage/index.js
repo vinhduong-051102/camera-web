@@ -297,7 +297,7 @@ const ProductLinePage = () => {
   return (
     <Container>
       <StyledInput
-        placeholder="Nhập id muốn tìm "
+        placeholder="Nhập tên muốn tìm "
         onChange={handleInputSearch}
         value={searchValue}
         loading={searchValue !== '' && isProcessing}

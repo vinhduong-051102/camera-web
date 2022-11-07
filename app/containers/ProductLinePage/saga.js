@@ -5,7 +5,6 @@ import {
   debounce,
   delay,
   select,
-  putResolve,
 } from 'redux-saga/effects';
 import * as actions from './actions';
 import * as constants from './constants';
@@ -17,10 +16,10 @@ import {
 } from '../../utils/request';
 import {
   fetchDataProductLineSuccess,
+  fetchDataProductsSuccess,
   getDataProductLineSuccess,
 } from '../../shared/components/Sidebar/actions';
 import { selectProductLineData } from '../../shared/components/Sidebar/selectors';
-import { deleteProduct } from '../ProductsPage/actions';
 
 export function* preparePostProductLine(action) {
   const body = { ...action.payload };
@@ -58,9 +57,9 @@ export function* putProductLine(action) {
         'Sửa thành công',
         'Cập nhập thành công !!!',
       );
-      yield call(openDialog, '', '', '');
     }
   } catch (err) {
+    yield call(openDialog, 'error', err, 'Có lỗi xảy ra !!!');
     throw new Error(err);
   }
 }
@@ -78,9 +77,9 @@ export function* postProductLine(action) {
         'Thêm  thành công',
         'Cập nhập thành công !!!',
       );
-      yield call(openDialog, '', '', '');
     }
   } catch (err) {
+    yield call(openDialog, 'error', err, 'Có lỗi xảy ra !!!');
     throw new Error(err);
   }
 }
@@ -114,6 +113,7 @@ export function* searchProductLine(action) {
       yield put(getDataProductLineSuccess([]));
     }
   } catch (error) {
+    yield call(openDialog, 'error', error, 'Có lỗi xảy ra !!!');
     throw new Error(error);
   }
   yield put(actions.end());
@@ -130,11 +130,19 @@ export function* deleteProductLine(action) {
     );
     const listProductInProductLineId =
       listProductInProductLineIdRes.data.data.response;
+
+    // xóa các sản phẩm có trong product-line đang xóa
+
     for (let i = 0; i < listProductInProductLineId.length; i += 1) {
       const { id } = listProductInProductLineId[i];
-      yield putResolve(deleteProduct(id));
-      console.log(id);
+      const res = yield call(axiosDelete, `/v1/products/${id}`);
+      if (res.status === 200) {
+        yield put(fetchDataProductsSuccess());
+      }
     }
+
+    // xóa product-line
+
     const res = yield call(axiosDelete, path);
     if (res.status === 200) {
       yield put(fetchDataProductLineSuccess());
@@ -144,9 +152,9 @@ export function* deleteProductLine(action) {
         'Xóa thành công',
         'Cập nhập thành công !!!',
       );
-      yield call(openDialog, '', '', '');
     }
   } catch (err) {
+    yield call(openDialog, 'error', err, 'Có lỗi xảy ra !!!');
     throw new Error(err);
   }
   yield put(actions.end());
@@ -160,7 +168,7 @@ export function* openDialog(type, message, description) {
       description,
     }),
   );
-  yield delay(500);
+  yield delay(100);
   yield put(actions.openDialog({}));
 }
 

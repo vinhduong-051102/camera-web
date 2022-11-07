@@ -266,9 +266,14 @@ const ProductsPage = () => {
               <Descriptions.Item label="Mô tả">
                 {record.description}
               </Descriptions.Item>
-              <Descriptions.Item label="Ngày tạo">
-                {record.createAt}
+              <Descriptions.Item label="Giá">{record.price}</Descriptions.Item>
+              <Descriptions.Item label="Khuyến mại">
+                {record.discount}
               </Descriptions.Item>
+              <Descriptions.Item label="Hoa hồng">
+                {record.bonus}
+              </Descriptions.Item>
+              <Descriptions.Item label="Tổng">{record.total}</Descriptions.Item>
             </Descriptions>
           </Modal>
         </div>
@@ -299,7 +304,7 @@ const ProductsPage = () => {
   const handleInputSearch = e => {
     const { value } = e.target;
     setSearchValue(value);
-    actions.searchProducts(value);
+    dispatch(actions.searchProducts(value));
   };
 
   const handleResetForm = () => {
@@ -364,7 +369,7 @@ const ProductsPage = () => {
   return (
     <Container>
       <StyledInput
-        placeholder="Nhập id muốn tìm "
+        placeholder="Nhập tên muốn tìm "
         onChange={handleInputSearch}
         value={searchValue}
         loading={searchValue !== '' && isProcessing}
