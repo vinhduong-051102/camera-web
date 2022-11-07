@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Table, Input, Button, Form } from 'antd';
+import { Table, Input, Button, Form, Select } from 'antd';
 
 export const Container = styled.div`
   display: flex;
@@ -15,16 +15,14 @@ export const StyledTable = styled(Table)`
 `;
 
 export const StyledInput = styled(Input.Search)`
-  width: 30%;
-  align-self: flex-end;
-  margin-bottom: 20px;
+  //align-self: flex-end;
+  //margin-bottom: 20px;
   .ant-btn-loading-icon {
     display: flex;
     justify-content: center;
   }
   @media screen and (max-width: 1025px) {
     width: 100%;
-    padding-top: 20px;
   }
 `;
 
@@ -62,4 +60,24 @@ export const StyledDescription = styled.div`
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+`;
+
+export const FilterContainer = styled.div`
+  width: 30%;
+  align-self: flex-end;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  @media screen and (max-width: 1025px) {
+    width: 100%;
+    padding-top: 20px;
+  }
+`;
+
+export const StyledSelect = styled(Select)`
+  margin-left: 10px;
+  width: 150px;
+  text-align: center;
+  //padding-top: 20px;
 `;

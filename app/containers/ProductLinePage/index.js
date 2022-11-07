@@ -19,6 +19,7 @@ import {
   Descriptions,
   notification,
 } from 'antd';
+import { v4 } from 'uuid';
 import {
   Container,
   StyledTable,
@@ -55,7 +56,7 @@ const ProductLinePage = () => {
   const [titleModal, setTitleModal] = React.useState('');
   const [showAllDesc, setShowAllDesc] = React.useState(false);
   const [productLineId, setProductLineId] = React.useState(undefined);
-
+  const [viewDetailData, setViewDetailData] = React.useState({});
   const columns = [
     {
       title: 'STT',
@@ -106,15 +107,20 @@ const ProductLinePage = () => {
       responsive: ['xxl', 'xl', 'lg'],
     },
     {
+      title: 'Thông tin chung',
+      render: (text, record) => (
+        <div>
+          <img src={record.imagePath} alt="" width={100} height={100} />
+          <p>{record.name}</p>
+        </div>
+      ),
+      align: 'center',
+      responsive: screen.lg ? ['xs'] : ['xs', 'sm'],
+    },
+    {
       title: 'Thao tác',
       render: id => (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-around',
-            flexWrap: 'wrap',
-          }}
-        >
+        <div style={{ display: 'flex', justifyContent: 'space-around' }}>
           <Popconfirm
             title="Xác nhận xoá"
             okText="Xác nhận"
@@ -138,84 +144,17 @@ const ProductLinePage = () => {
               onClick={() => handleOpenModal('Sửa', id)}
             />
           </Tooltip>
-        </div>
-      ),
-      dataIndex: 'id',
-      width: 150,
-      responsive: ['xxl', 'xl', 'lg'],
-    },
-    {
-      title: 'Thông tin chung',
-      render: (text, record) => (
-        <div>
-          <img src={record.imagePath} alt="" width={100} height={100} />
-          <p>{record.name}</p>
-        </div>
-      ),
-      align: 'center',
-      responsive: screen.lg ? ['xs'] : ['xs', 'sm'],
-    },
-    {
-      title: 'Thao tác',
-      render: (id, record) => (
-        <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-          <Popconfirm
-            title="Xác nhận xoá"
-            okText="Xác nhận"
-            cancelText="Huỷ"
-            onConfirm={() => handleDelProductLine(id)}
-          >
-            <Tooltip title="Xoá">
-              <Button
-                icon={<DeleteOutlined />}
-                shape="circle"
-                danger
-                type="primary"
-              />
-            </Tooltip>
-          </Popconfirm>
-          <Tooltip title="Sửa">
-            <Button
-              icon={<EditOutlined />}
-              shape="circle"
-              type="primary"
-              onClick={() => handleOpenModal('Sửa')}
-            />
-          </Tooltip>
           <Tooltip title="Xem chi tiết">
             <Button
               icon={<EyeOutlined />}
               shape="circle"
-              onClick={handleOpenViewDetail}
+              onClick={() => handleOpenViewDetail(id)}
             />
           </Tooltip>
-          <Modal
-            title="Chi tiết thông tin"
-            open={isOpenViewDetail}
-            centered
-            onCancel={handleCloseViewDetail}
-            onOk={handleCloseViewDetail}
-          >
-            <Descriptions bordered column={1}>
-              <Descriptions.Item label="Hình ảnh">
-                <img width={100} height={100} src={record.imagePath} alt="" />
-              </Descriptions.Item>
-              <Descriptions.Item label="Tên dòng sản phẩm">
-                {record.name}
-              </Descriptions.Item>
-              <Descriptions.Item label="Mô tả">
-                {record.description}
-              </Descriptions.Item>
-              <Descriptions.Item label="Ngày tạo">
-                {record.createAt}
-              </Descriptions.Item>
-            </Descriptions>
-          </Modal>
         </div>
       ),
       width: screen.xs ? 128 : 200,
       dataIndex: 'id',
-      responsive: screen.lg ? ['xs'] : ['xs', 'sm'],
     },
   ];
 
@@ -223,7 +162,22 @@ const ProductLinePage = () => {
 
   const handleOpenModal = (title, id) => {
     if (id) {
+      const productLineByID = data.find(item => item.id === id);
+      // eslint-disable-next-line no-shadow
+      const fileList = [
+        {
+          uid: v4(),
+          name: productLineByID.name,
+          thumbUrl: productLineByID.imagePath,
+        },
+      ];
       setProductLineId(id);
+      setFileList(fileList);
+      form.setFieldsValue({
+        name: productLineByID.name,
+        description: productLineByID.description,
+        image: fileList,
+      });
     }
     setTitleModal(title);
     setIsOpenModal(true);
@@ -231,9 +185,11 @@ const ProductLinePage = () => {
 
   const handleCloseModal = () => {
     setIsOpenModal(false);
+    handleResetForm();
   };
 
   const handleChange = imgData => {
+    console.log(imgData);
     // eslint-disable-next-line no-shadow
     setFileList(imgData.fileList);
   };
@@ -249,16 +205,19 @@ const ProductLinePage = () => {
     form.setFieldsValue({
       name: '',
       description: '',
+      image: [],
     });
     setFileList([]);
   };
 
-  const handleOpenViewDetail = () => {
+  const handleOpenViewDetail = id => {
     setIsOpenViewDetail(true);
+    setViewDetailData(data.find(productLine => productLine.id === id));
   };
 
   const handleCloseViewDetail = () => {
     setIsOpenViewDetail(false);
+    setViewDetailData({});
   };
 
   const handleSubmitForm = values => {
@@ -266,7 +225,9 @@ const ProductLinePage = () => {
       actions.preparePostProductLine({
         name: values.name,
         description: values.description,
-        image: values.image.file.originFileObj,
+        image: values.image.file
+          ? values.image.file.originFileObj
+          : values.image,
         id: productLineId,
       }),
     );
@@ -315,7 +276,9 @@ const ProductLinePage = () => {
       </StyledButton>
       <StyledTable
         columns={columns}
-        dataSource={data}
+        dataSource={data
+          .filter(item => item.id !== '00000000-0000-0000-0000-000000000000')
+          .map((item, index) => ({ ...item, stt: index + 1 }))}
         // dataSource={[
         //   {
         //     key: 1,
@@ -375,7 +338,16 @@ const ProductLinePage = () => {
           >
             <Input.TextArea />
           </Form.Item>
-          <Form.Item label="Tải file ảnh" name="image">
+          <Form.Item
+            label="Tải file ảnh"
+            name="image"
+            rules={[
+              {
+                required: true,
+                message: 'Vui lòng chọn 1 ảnh',
+              },
+            ]}
+          >
             <Upload
               listType="picture"
               fileList={fileList}
@@ -402,6 +374,33 @@ const ProductLinePage = () => {
             </Button>
           </StyledSubmitFormButton>
         </Form>
+      </Modal>
+      <Modal
+        title="Chi tiết thông tin"
+        open={isOpenViewDetail}
+        centered
+        onCancel={handleCloseViewDetail}
+        onOk={handleCloseViewDetail}
+      >
+        <Descriptions bordered column={1}>
+          <Descriptions.Item label="Hình ảnh">
+            <img
+              width={100}
+              height={100}
+              src={viewDetailData.imagePath}
+              alt=""
+            />
+          </Descriptions.Item>
+          <Descriptions.Item label="Tên dòng sản phẩm">
+            {viewDetailData.name}
+          </Descriptions.Item>
+          <Descriptions.Item label="Mô tả">
+            {viewDetailData.description}
+          </Descriptions.Item>
+          <Descriptions.Item label="Ngày tạo">
+            {viewDetailData.createAt}
+          </Descriptions.Item>
+        </Descriptions>
       </Modal>
     </Container>
   );

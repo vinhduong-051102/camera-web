@@ -10,11 +10,12 @@ export const selectProductLineData = () =>
     state => {
       const tableData = state.productLineData.map((item, index) => {
         const { name, description, imagePath, createAt, id } = item;
+        const baseUrlImg = 'http://10.2.65.99:7777/api/v1/thumbnail/';
         return {
           key: index,
           name,
           description,
-          imagePath,
+          imagePath: baseUrlImg.concat(imagePath),
           createAt: new Date(createAt).toUTCString(),
           stt: index + 1,
           id,

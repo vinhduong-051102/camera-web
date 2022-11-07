@@ -30,10 +30,12 @@ const LoginPage = () => {
     dispatch(login(values));
   };
   React.useEffect(() => {
+    // const webCookie = window.document.cookie.split('=')[1];
+    // console.log(webCookie);
     if (accessToken !== '') {
       history.push('/');
     }
-  }, [accessToken]);
+  }, [accessToken, window.document.cookie]);
   return (
     <Container style={{ backgroundImage: `url(${loginBG})` }}>
       <StyledForm

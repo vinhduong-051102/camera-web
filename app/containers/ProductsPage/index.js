@@ -29,6 +29,8 @@ import {
   StyledSpanButton,
   StyledSubmitFormButton,
   StyledDescription,
+  FilterContainer,
+  StyledSelect,
 } from './styles';
 import * as selectors from '../../shared/components/Sidebar/selectors';
 import reducer from './reducer';
@@ -66,6 +68,7 @@ const ProductsPage = () => {
   };
 
   const listProductId = useSelector(selectors.selectListProductLineId());
+  const productLineData = useSelector(selectors.selectProductLineData());
   const dialogConfig = useSelector(selectDialogConfig());
   const isProcessing = useSelector(selectIsProcessing());
   const dispatch = useDispatch();
@@ -84,6 +87,8 @@ const ProductsPage = () => {
   const [showAllDesc, setShowAllDesc] = React.useState(false);
   const [productId, setProductId] = React.useState(undefined);
   const [productLineId, setProductLineId] = React.useState(listProductId[0]);
+  const [viewDetailData, setViewDetailData] = React.useState({});
+
   const columns = [
     {
       title: 'STT',
@@ -166,45 +171,6 @@ const ProductsPage = () => {
       responsive: screen.lg && !screen.xl && !screen.xxl ? ['lg'] : [''],
     },
     {
-      title: 'Thao tác',
-      render: id => (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-around',
-            flexWrap: 'wrap',
-          }}
-        >
-          <Popconfirm
-            title="Xác nhận xoá"
-            okText="Xác nhận"
-            cancelText="Huỷ"
-            onConfirm={() => handleDelProduct(id)}
-          >
-            <Tooltip title="Xoá">
-              <Button
-                icon={<DeleteOutlined />}
-                shape="circle"
-                danger
-                type="primary"
-              />
-            </Tooltip>
-          </Popconfirm>
-          <Tooltip title="Sửa">
-            <Button
-              icon={<EditOutlined />}
-              shape="circle"
-              type="primary"
-              onClick={() => handleOpenModal('Sửa', id)}
-            />
-          </Tooltip>
-        </div>
-      ),
-      dataIndex: 'id',
-      width: 150,
-      responsive: ['xxl', 'xl', 'lg'],
-    },
-    {
       title: 'Thông tin chung',
       render: (text, record) => (
         <div>
@@ -217,7 +183,7 @@ const ProductsPage = () => {
     },
     {
       title: 'Thao tác',
-      render: (id, record) => (
+      render: id => (
         <div style={{ display: 'flex', justifyContent: 'space-around' }}>
           <Popconfirm
             title="Xác nhận xoá"
@@ -246,41 +212,13 @@ const ProductsPage = () => {
             <Button
               icon={<EyeOutlined />}
               shape="circle"
-              onClick={handleOpenViewDetail}
+              onClick={() => handleOpenViewDetail(id)}
             />
           </Tooltip>
-          <Modal
-            title="Chi tiết thông tin"
-            open={isOpenViewDetail}
-            centered
-            onCancel={handleCloseViewDetail}
-            onOk={handleCloseViewDetail}
-          >
-            <Descriptions bordered column={1}>
-              <Descriptions.Item label="Hình ảnh">
-                <img width={100} height={100} src={record.imagePath} alt="" />
-              </Descriptions.Item>
-              <Descriptions.Item label="Tên dòng sản phẩm">
-                {record.name}
-              </Descriptions.Item>
-              <Descriptions.Item label="Mô tả">
-                {record.description}
-              </Descriptions.Item>
-              <Descriptions.Item label="Giá">{record.price}</Descriptions.Item>
-              <Descriptions.Item label="Khuyến mại">
-                {record.discount}
-              </Descriptions.Item>
-              <Descriptions.Item label="Hoa hồng">
-                {record.bonus}
-              </Descriptions.Item>
-              <Descriptions.Item label="Tổng">{record.total}</Descriptions.Item>
-            </Descriptions>
-          </Modal>
         </div>
       ),
       width: screen.xs ? 128 : 200,
       dataIndex: 'id',
-      responsive: screen.lg ? ['xs'] : ['xs', 'sm'],
     },
   ];
 
@@ -320,12 +258,14 @@ const ProductsPage = () => {
     setFileList([]);
   };
 
-  const handleOpenViewDetail = () => {
+  const handleOpenViewDetail = id => {
     setIsOpenViewDetail(true);
+    setViewDetailData(data.find(product => product.id === id));
   };
 
   const handleCloseViewDetail = () => {
     setIsOpenViewDetail(false);
+    setViewDetailData({});
   };
 
   const handleSubmitForm = values => {
@@ -368,13 +308,24 @@ const ProductsPage = () => {
 
   return (
     <Container>
-      <StyledInput
-        placeholder="Nhập tên muốn tìm "
-        onChange={handleInputSearch}
-        value={searchValue}
-        loading={searchValue !== '' && isProcessing}
-        size="large"
-      />
+      <FilterContainer>
+        <StyledInput
+          placeholder="Nhập tên muốn tìm "
+          onChange={handleInputSearch}
+          value={searchValue}
+          loading={searchValue !== '' && isProcessing}
+          size="large"
+        />
+        <StyledSelect
+          options={productLineData.map(productLine => ({
+            value: productLine.id,
+            label: productLine.name,
+          }))}
+          defaultValue={productLineId}
+          onChange={handleFilterDataByProductLineId}
+          value={productLineId}
+        />
+      </FilterContainer>
       <StyledButton
         shape="round"
         type="primary"
@@ -391,19 +342,6 @@ const ProductsPage = () => {
         dataSource={data}
         size="large"
         loading={isProcessing}
-        footer={() => (
-          <Select
-            options={listProductId.map(id => ({ value: id, label: id }))}
-            style={
-              !screen.lg && !screen.xl && !screen.xxl
-                ? { width: '98%' }
-                : { width: 320 }
-            }
-            defaultValue={productLineId}
-            onChange={handleFilterDataByProductLineId}
-            value={productLineId}
-          />
-        )}
       />
 
       <Modal
@@ -496,7 +434,15 @@ const ProductsPage = () => {
             ]}
           >
             <Select
-              options={listProductId.map(id => ({ value: id, label: id }))}
+              options={productLineData
+                .filter(
+                  productLine =>
+                    productLine.id !== '00000000-0000-0000-0000-000000000000',
+                )
+                .map(productLine => ({
+                  value: productLine.id,
+                  label: productLine.name,
+                }))}
             />
           </Form.Item>
           <Form.Item
@@ -525,6 +471,42 @@ const ProductsPage = () => {
             </Button>
           </StyledSubmitFormButton>
         </Form>
+      </Modal>
+      <Modal
+        title="Chi tiết thông tin"
+        open={isOpenViewDetail}
+        centered
+        onCancel={handleCloseViewDetail}
+        onOk={handleCloseViewDetail}
+      >
+        <Descriptions bordered column={1}>
+          <Descriptions.Item label="Hình ảnh">
+            <img
+              width={100}
+              height={100}
+              src={viewDetailData.imagePath}
+              alt=""
+            />
+          </Descriptions.Item>
+          <Descriptions.Item label="Tên dòng sản phẩm">
+            {viewDetailData.name}
+          </Descriptions.Item>
+          <Descriptions.Item label="Mô tả">
+            {viewDetailData.description}
+          </Descriptions.Item>
+          <Descriptions.Item label="Giá">
+            {viewDetailData.price}
+          </Descriptions.Item>
+          <Descriptions.Item label="Khuyến mại">
+            {viewDetailData.discount}
+          </Descriptions.Item>
+          <Descriptions.Item label="Hoa hồng">
+            {viewDetailData.bonus}
+          </Descriptions.Item>
+          <Descriptions.Item label="Tổng">
+            {viewDetailData.total}
+          </Descriptions.Item>
+        </Descriptions>
       </Modal>
     </Container>
   );
