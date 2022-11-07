@@ -364,7 +364,7 @@ const ProductsPage = () => {
         description,
       });
     }
-  }, [dialogConfig]);
+  }, [dialogConfig.type, dialogConfig.message, dialogConfig.description]);
 
   return (
     <Container>

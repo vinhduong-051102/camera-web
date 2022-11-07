@@ -9,8 +9,6 @@ export function* getDataProductLine() {
   try {
     const res = yield call(axiosGet, path);
     const { data } = res;
-    const imgId = data.data[1].id;
-    console.log(imgId);
     if (data.data) {
       yield put(actions.getDataProductLineSuccess(data.data));
     }
