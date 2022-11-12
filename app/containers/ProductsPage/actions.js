@@ -7,6 +7,7 @@ import {
   ACTION_DELETE_PRODUCTS_BY_ID,
   ACTION_PUT_PRODUCTS_BY_ID,
   ACTION_OPEN_DIALOG,
+  ACTION_DELETE_FILE,
 } from './constants';
 
 export const postProduct = payload => ({
@@ -44,5 +45,10 @@ export const putProduct = payload => ({
 
 export const openDialog = payload => ({
   type: ACTION_OPEN_DIALOG,
+  payload,
+});
+
+export const deleteFile = payload => ({
+  type: ACTION_DELETE_FILE,
   payload,
 });

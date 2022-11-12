@@ -9,7 +9,6 @@ export function* getDataProductLine() {
   try {
     const res = yield call(axiosGet, path);
     const { data } = res;
-    console.log(res);
     if (data.data) {
       yield put(actions.getDataProductLineSuccess(data.data));
     }
@@ -32,7 +31,19 @@ export function* getDataProducts(action) {
   try {
     const res = yield call(axiosGet, path);
     const { data } = res.data;
-    yield put(actions.getDataProductsSuccess(data.response));
+    const { response } = data;
+    const payload = [];
+    for (let i = 0; i < response.length; i += 1) {
+      // eslint-disable-next-line no-shadow
+      const res = yield call(
+        axiosGet,
+        `http://10.2.65.99:7777/api/v1/products/${response[i].id}`,
+      );
+      // eslint-disable-next-line no-shadow
+      const { data } = res.data;
+      payload.push(data);
+    }
+    yield put(actions.getDataProductsSuccess(payload));
     const productLineRes = yield call(axiosGet, '/v1/product-line');
     if (productLineRes.data) {
       const listProductLineId = productLineRes.data.data.map(item => item.id);

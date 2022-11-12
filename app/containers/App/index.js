@@ -52,6 +52,8 @@ const ComponentRouter = ({ component: Component }) => {
 
 export default function App() {
   const accessToken = useSelector(selectAccessToken());
+  const webCookie = window.document.cookie.split('=')[1];
+
   return (
     <ThemeProvider theme={normalTheme}>
       <>
@@ -66,7 +68,11 @@ export default function App() {
             exact
             path="/danh-sach-san-pham"
             component={() =>
-              accessToken ? <ProductsPage /> : <Redirect to="/login" />
+              accessToken || webCookie ? (
+                <ProductsPage />
+              ) : (
+                <Redirect to="/login" />
+              )
             }
           />
 
@@ -74,7 +80,11 @@ export default function App() {
             exact
             path="/danh-sach-hang-san-pham"
             component={() =>
-              accessToken ? <ProductLinePage /> : <Redirect to="/login" />
+              accessToken || webCookie ? (
+                <ProductLinePage />
+              ) : (
+                <Redirect to="/login" />
+              )
             }
           />
 

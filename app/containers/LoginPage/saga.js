@@ -16,6 +16,7 @@ export function* login(action) {
       yield call(setAccessToken, accessToken);
     }
   } catch (err) {
+    yield put(actions.end());
     throw new Error(err);
   }
   yield put(actions.end());

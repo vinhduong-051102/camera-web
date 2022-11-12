@@ -41,11 +41,13 @@ export function* preparePostProduct(action) {
   try {
     const listIdAvatar = [];
     for (let i = 0; i < listImgFile.length; i += 1) {
-      const formData = new FormData();
-      formData.append('file', listImgFile[0]);
-      const res = yield call(axiosPost, imgApiPath, formData);
-      const imageId = res.data.data.id;
-      listIdAvatar.push(imageId);
+      if (listImgFile[i]) {
+        const formData = new FormData();
+        formData.append('file', listImgFile[i]);
+        const res = yield call(axiosPost, imgApiPath, formData);
+        const imageId = res.data.data.id;
+        listIdAvatar.push(imageId);
+      }
     }
     const payload = {
       name,
@@ -65,7 +67,7 @@ export function* preparePostProduct(action) {
     }
   } catch (err) {
     yield call(openDialog, 'error', err, 'Có lỗi xảy ra !!!');
-
+    yield put(actions.end());
     throw new Error(err);
   }
   yield put(actions.end());
@@ -114,14 +116,17 @@ export function* postProduct(action) {
 export function* searchProduct(action) {
   const dataProduct = yield select(selectProductsData());
   const body = action.payload;
+  console.log(body);
   const isContainSearchName = dataProduct.some(
-    item => item.name === body || body === '',
+    item => item.name === body.name || body.name === '',
   );
 
   yield put(actions.begin());
   try {
     if (isContainSearchName) {
-      const path = `/v1/products?currentPage=1&productLineId=00000000-0000-0000-0000-000000000000&name=${body}`;
+      const path = `/v1/products?currentPage=1&productLineId=${
+        body.productLineId
+      }&name=${body.name}`;
       const res = yield call(axiosGet, path);
       if (res.data) {
         const rawData = res.data.data.response;
@@ -135,6 +140,7 @@ export function* searchProduct(action) {
     }
   } catch (error) {
     yield call(openDialog, 'error', error, 'Có lỗi xảy ra !!!');
+    yield put(actions.end());
     throw new Error(error);
   }
   yield put(actions.end());
@@ -157,6 +163,7 @@ export function* deleteProduct(action) {
     }
   } catch (err) {
     yield call(openDialog, 'error', err, 'Có lỗi xảy ra !!!');
+    yield put(actions.end());
     throw new Error(err);
   }
   yield put(actions.end());
@@ -174,10 +181,25 @@ export function* openDialog(type, message, description) {
   yield put(actions.openDialog({}));
 }
 
+export function* deleteFile(action) {
+  const body = action.payload;
+  const path = `/v1/image/product/delete/${body}`;
+  yield put(actions.begin());
+  try {
+    yield call(axiosDelete, path);
+  } catch (err) {
+    yield call(openDialog, 'error', err, 'Có lỗi xảy ra !!!');
+    yield put(actions.end());
+    throw new Error(err);
+  }
+  yield put(actions.end());
+}
+
 export default function* watchFetchMonitor() {
   yield takeLatest(constants.ACTION_POST_PRODUCTS, postProduct);
   yield takeLatest(constants.ACTION_PUT_PRODUCTS_BY_ID, putProduct);
   yield takeLatest(constants.ACTION_PREPARE_POST_PRODUCTS, preparePostProduct);
   yield debounce(500, constants.ACTION_SEARCH_PRODUCTS_BY_ID, searchProduct);
   yield takeLatest(constants.ACTION_DELETE_PRODUCTS_BY_ID, deleteProduct);
+  yield takeLatest(constants.ACTION_DELETE_FILE, deleteFile);
 }

@@ -25,3 +25,5 @@ export const ACTION_PUT_PRODUCTS_BY_ID = `${
 }/ACTION_PUT_PRODUCTS_BY_ID`;
 
 export const ACTION_OPEN_DIALOG = `${REDUX_KEY.productPage}/ACTION_OPEN_DIALOG`;
+
+export const ACTION_DELETE_FILE = `${REDUX_KEY.productPage}/ACTION_DELETE_FILE`;

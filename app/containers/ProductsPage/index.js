@@ -20,7 +20,10 @@ import {
   Descriptions,
   notification,
   Select,
+  Image,
+  Pagination,
 } from 'antd';
+import { v4 } from 'uuid';
 import {
   Container,
   StyledTable,
@@ -41,6 +44,21 @@ import { REDUX_KEY } from '../../utils/constants';
 import * as actions from './actions';
 import { selectIsProcessing, selectDialogConfig } from './selectors';
 import { fetchDataProductsSuccess } from '../../shared/components/Sidebar/actions';
+
+// const convertUrlToFile = async (path, name) => {
+//   const response = await fetch(path);
+//   const blob = await response.blob();
+//   const rawFile = new File([blob], name, {
+//     type: blob.type,
+//   });
+//   const file = {
+//     originFileObj: rawFile,
+//     uid: v4(),
+//     name,
+//     thumbUrl: path,
+//   };
+//   return file;
+// };
 
 const ProductsPage = () => {
   const schema = yup.object().shape({
@@ -67,7 +85,6 @@ const ProductsPage = () => {
     },
   };
 
-  const listProductId = useSelector(selectors.selectListProductLineId());
   const productLineData = useSelector(selectors.selectProductLineData());
   const dialogConfig = useSelector(selectDialogConfig());
   const isProcessing = useSelector(selectIsProcessing());
@@ -86,9 +103,11 @@ const ProductsPage = () => {
   const [titleModal, setTitleModal] = React.useState('');
   const [showAllDesc, setShowAllDesc] = React.useState(false);
   const [productId, setProductId] = React.useState(undefined);
-  const [productLineId, setProductLineId] = React.useState(listProductId[0]);
+  const [productLineId, setProductLineId] = React.useState(
+    '00000000-0000-0000-0000-000000000000',
+  );
   const [viewDetailData, setViewDetailData] = React.useState({});
-
+  const [currPageImg, setCurrPageImg] = React.useState(1);
   const columns = [
     {
       title: 'STT',
@@ -97,15 +116,6 @@ const ProductsPage = () => {
       align: 'center',
       responsive: ['xxl', 'xl', 'lg', 'md', 'sm'],
     },
-    // {
-    //   title: 'Ảnh',
-    //   dataIndex: 'imagePath',
-    //   render: imagePath => (
-    //     <img style={{ width: 100, height: 100 }} src={imagePath} alt="" />
-    //   ),
-    //   width: 150,
-    //   responsive: ['xxl', 'xl', 'lg'],
-    // },
     {
       title: 'Tên',
       dataIndex: 'name',
@@ -145,6 +155,11 @@ const ProductsPage = () => {
       title: 'Hoa hồng',
       dataIndex: 'bonus',
       responsive: screen.xl ? ['xxl', 'xl', 'lg'] : [''],
+      render: (text, record) => (
+        <p>
+          {record.bonus} {record.bonusTypeEntity.unit}
+        </p>
+      ),
     },
     {
       title: 'Tổng',
@@ -173,10 +188,16 @@ const ProductsPage = () => {
     {
       title: 'Thông tin chung',
       render: (text, record) => (
-        <div>
-          <img src={record.imagePath} alt="" width={100} height={100} />
-          <p>{record.name}</p>
-        </div>
+        <Descriptions
+          column={{ md: 1, sm: 1, xs: 1 }}
+          size="small"
+          labelStyle={{ fontWeight: 'bold' }}
+        >
+          <Descriptions.Item label="Tên">{record.name}</Descriptions.Item>
+          <Descriptions.Item label="Mô tả">
+            {record.description}
+          </Descriptions.Item>
+        </Descriptions>
       ),
       align: 'center',
       responsive: screen.lg ? ['xs'] : ['xs', 'sm'],
@@ -205,7 +226,7 @@ const ProductsPage = () => {
               icon={<EditOutlined />}
               shape="circle"
               type="primary"
-              onClick={() => handleOpenModal('Sửa')}
+              onClick={() => handleOpenModal('Sửa', id)}
             />
           </Tooltip>
           <Tooltip title="Xem chi tiết">
@@ -225,24 +246,44 @@ const ProductsPage = () => {
   // upload modal
 
   const handleOpenModal = (title, id) => {
+    if (id) {
+      const productByID = data.find(item => item.id === id);
+      const { imageProductEntityList } = productByID;
+      // eslint-disable-next-line no-shadow
+      const fileList = [];
+      imageProductEntityList.forEach(item => {
+        const file = {
+          uid: v4(),
+          name: item.name,
+          thumbUrl: item.path,
+        };
+        fileList.push(file);
+      });
+      form.setFieldsValue({
+        name: productByID.name,
+        description: productByID.description,
+        bonus: productByID.bonus,
+        price: productByID.price,
+        discount: productByID.discount,
+        image: fileList,
+        idBonusType: productByID.bonusTypeEntity.unit,
+        productLineId: productByID.productLineId,
+      });
+      setProductId(id);
+    }
     setTitleModal(title);
     setIsOpenModal(true);
-    setProductId(id);
   };
 
   const handleCloseModal = () => {
     setIsOpenModal(false);
-  };
-
-  const handleChange = imgData => {
-    // eslint-disable-next-line no-shadow
-    setFileList(imgData.fileList);
+    handleResetForm();
   };
 
   const handleInputSearch = e => {
     const { value } = e.target;
     setSearchValue(value);
-    dispatch(actions.searchProducts(value));
+    dispatch(actions.searchProducts({ name: value, productLineId }));
   };
 
   const handleResetForm = () => {
@@ -253,9 +294,10 @@ const ProductsPage = () => {
       bonus: '',
       price: '',
       discount: '',
+      image: [],
+      idBonusType: '',
       productLineId: '',
     });
-    setFileList([]);
   };
 
   const handleOpenViewDetail = id => {
@@ -269,12 +311,13 @@ const ProductsPage = () => {
   };
 
   const handleSubmitForm = values => {
-    const listImageFile = values.image.fileList.map(img => img.originFileObj);
+    const listImageFile = values.image.map(img => img.originFileObj);
     dispatch(
       actions.preparePostProduct({
         ...values,
         image: listImageFile,
         id: productId,
+        idBonusType: '%' ? 1 : 2,
       }),
     );
     if (!isProcessing) {
@@ -296,6 +339,14 @@ const ProductsPage = () => {
     dispatch(fetchDataProductsSuccess(value));
   };
 
+  const handleRemove = file => {
+    dispatch(actions.deleteFile(file.name));
+  };
+
+  const handleChangeImage = page => {
+    setCurrPageImg(page);
+  };
+
   React.useEffect(() => {
     const { type, message, description } = dialogConfig;
     if (type) {
@@ -305,7 +356,6 @@ const ProductsPage = () => {
       });
     }
   }, [dialogConfig.type, dialogConfig.message, dialogConfig.description]);
-
   return (
     <Container>
       <FilterContainer>
@@ -321,7 +371,7 @@ const ProductsPage = () => {
             value: productLine.id,
             label: productLine.name,
           }))}
-          defaultValue={productLineId}
+          defaultValue="00000000-0000-0000-0000-000000000000"
           onChange={handleFilterDataByProductLineId}
           value={productLineId}
         />
@@ -419,8 +469,8 @@ const ProductsPage = () => {
                 rules={[{ required: true, message: 'Vui lòng chọn đơn vị' }]}
               >
                 <Select>
-                  <Select.Option value="1">VND</Select.Option>
-                  <Select.Option value="2">%</Select.Option>
+                  <Select.Option value="2">VND</Select.Option>
+                  <Select.Option value="1">%</Select.Option>
                 </Select>
               </Form.Item>
             </Input.Group>
@@ -449,11 +499,15 @@ const ProductsPage = () => {
             label="Tải file ảnh"
             name="image"
             rules={[{ required: true, message: 'Chọn tối thiểu 1 ảnh' }]}
+            getValueProps={value => {
+              setFileList(value);
+            }}
+            getValueFromEvent={value => value.fileList}
           >
             <Upload
               listType="picture"
               fileList={fileList}
-              onChange={handleChange}
+              onRemove={handleRemove}
             >
               <Tooltip title="Đăng tải ảnh">
                 <Button
@@ -481,11 +535,32 @@ const ProductsPage = () => {
       >
         <Descriptions bordered column={1}>
           <Descriptions.Item label="Hình ảnh">
-            <img
-              width={100}
-              height={100}
-              src={viewDetailData.imagePath}
-              alt=""
+            {viewDetailData.imageProductEntityList && (
+              <div
+                key={viewDetailData.imageProductEntityList[currPageImg - 1].id}
+                style={{
+                  margin: 10,
+                }}
+              >
+                <Image
+                  src={
+                    viewDetailData.imageProductEntityList[currPageImg - 1].path
+                  }
+                  alt=""
+                  style={{ width: '100%' }}
+                />
+              </div>
+            )}
+            <Pagination
+              size="small"
+              pageSize={1}
+              defaultCurrent={1}
+              onChange={handleChangeImage}
+              total={
+                viewDetailData.imageProductEntityList
+                  ? viewDetailData.imageProductEntityList.length
+                  : 1
+              }
             />
           </Descriptions.Item>
           <Descriptions.Item label="Tên dòng sản phẩm">

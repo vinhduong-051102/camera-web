@@ -19,6 +19,7 @@ export const selectProductLineData = () =>
           createAt: new Date(createAt).toUTCString(),
           stt: index + 1,
           id,
+          fileName: imagePath,
         };
       });
 
@@ -30,32 +31,37 @@ export const selectProductsData = () =>
   createSelector(
     selectSidebar,
     state => {
+      const baseUrlImg = 'http://10.2.65.99:7777/api/v1/thumbnail/';
       const tableData = state.productsData.map((item, index) => {
         const {
           name,
           description,
-          listIdAvatar,
           id,
           price,
           discount,
           bonus,
           total,
-          idBonusType,
-          excellent,
+          bonusTypeEntity,
+          productLineId,
         } = item;
+        const imageProductEntityList = item.imageProductEntityList.map(
+          // eslint-disable-next-line no-shadow
+          item => ({ ...item, path: baseUrlImg.concat(item.name) }),
+        );
         return {
           key: index,
           name,
           description,
-          listIdAvatar,
           price,
           discount,
           bonus,
           total,
           stt: index + 1,
           id,
-          idBonusType,
-          excellent,
+          bonusTypeEntity,
+          excellent: true,
+          imageProductEntityList,
+          productLineId,
         };
       });
       return tableData;

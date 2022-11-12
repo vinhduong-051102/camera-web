@@ -160,19 +160,27 @@ const ProductLinePage = () => {
 
   // upload modal
 
-  const handleOpenModal = (title, id) => {
+  const handleOpenModal = async (title, id) => {
     if (id) {
       const productLineByID = data.find(item => item.id === id);
+      const response = await fetch(productLineByID.imagePath);
+      const blob = await response.blob();
+      const rawFile = new File([blob], productLineByID.fileName, {
+        type: blob.type,
+      });
+      const file = {
+        originFileObj: rawFile,
+        uid: v4(),
+        name: productLineByID.fileName,
+        thumbUrl: productLineByID.imagePath,
+      };
       // eslint-disable-next-line no-shadow
-      const fileList = [
-        {
-          uid: v4(),
-          name: productLineByID.name,
-          thumbUrl: productLineByID.imagePath,
-        },
-      ];
+      const fileList = {
+        file,
+        fileList: [file],
+      };
       setProductLineId(id);
-      setFileList(fileList);
+      // setFileList(fileList);
       form.setFieldsValue({
         name: productLineByID.name,
         description: productLineByID.description,
@@ -188,11 +196,10 @@ const ProductLinePage = () => {
     handleResetForm();
   };
 
-  const handleChange = imgData => {
-    console.log(imgData);
-    // eslint-disable-next-line no-shadow
-    setFileList(imgData.fileList);
-  };
+  // const handleChange = imgData => {
+  //   // eslint-disable-next-line no-shadow
+  //   setFileList(imgData.fileList);
+  // };
 
   const handleInputSearch = e => {
     const { value } = e.target;
@@ -201,13 +208,12 @@ const ProductLinePage = () => {
   };
 
   const handleResetForm = () => {
-    setIsOpenModal(false);
     form.setFieldsValue({
       name: '',
       description: '',
       image: [],
     });
-    setFileList([]);
+    setIsOpenModal(false);
   };
 
   const handleOpenViewDetail = id => {
@@ -227,7 +233,7 @@ const ProductLinePage = () => {
         description: values.description,
         image: values.image.file
           ? values.image.file.originFileObj
-          : values.image,
+          : values.image[0].originFileObj,
         id: productLineId,
       }),
     );
@@ -301,6 +307,7 @@ const ProductLinePage = () => {
         onOk={handleCloseModal}
         onCancel={handleCloseModal}
         footer={null}
+        getContainer={false}
       >
         <Form
           name="basic"
@@ -341,24 +348,23 @@ const ProductLinePage = () => {
           <Form.Item
             label="Tải file ảnh"
             name="image"
+            getValueProps={value => {
+              setFileList(value);
+            }}
+            getValueFromEvent={value => value.fileList}
             rules={[
               {
                 required: true,
-                message: 'Vui lòng chọn 1 ảnh',
+                message: 'Vui lòng chọn ảnh !',
               },
             ]}
           >
             <Upload
               listType="picture"
-              fileList={fileList}
-              onChange={handleChange}
+              fileList={fileList.fileList}
               maxCount={1}
             >
-              <Tooltip
-                title={
-                  fileList.length === 1 ? 'Cập nhập lại ảnh ' : 'Đăng tải ảnh'
-                }
-              >
+              <Tooltip title="Đăng tải ảnh">
                 <Button
                   type="primary"
                   size="medium"
