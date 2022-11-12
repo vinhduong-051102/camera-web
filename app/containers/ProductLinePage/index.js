@@ -199,6 +199,7 @@ const ProductLinePage = () => {
 
   const handleCloseModal = () => {
     setIsOpenModal(false);
+    setProductLineId(undefined);
     handleResetForm();
   };
 
@@ -233,6 +234,7 @@ const ProductLinePage = () => {
   };
 
   const handleSubmitForm = values => {
+    console.log(productLineId);
     dispatch(
       actions.preparePostProductLine({
         name: values.name,
