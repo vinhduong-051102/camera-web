@@ -186,6 +186,12 @@ const ProductLinePage = () => {
         description: productLineByID.description,
         image: fileList,
       });
+    } else {
+      form.setFieldsValue({
+        name: '',
+        description: '',
+        image: [],
+      });
     }
     setTitleModal(title);
     setIsOpenModal(true);
