@@ -17,6 +17,7 @@ export const StyledForm = styled(Form)`
   margin: auto 0;
   padding: 0 20px;
   width: 70vw;
+  max-width: 800px;
 `;
 
 export const StyledFormItem = styled(Form.Item)`
